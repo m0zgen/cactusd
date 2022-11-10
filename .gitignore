@@ -1,0 +1,14 @@
+# Envs
+.env*
+.env.production
+
+# Server works dirs
+config/prod*
+download
+tests
+node_modules
+
+# System files
+.DS_Store
+.idea
+.vscode
