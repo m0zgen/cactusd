@@ -1,6 +1,6 @@
 # CACTUS
 
-Command and Actions routine Server
+Command and Actions Routine Server Daemon
 
 Main tasks:
 * JSON config
