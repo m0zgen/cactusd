@@ -6,13 +6,22 @@ import (
 	"os"
 )
 
+const CONFIG string = "config.yml"
+
 type Config struct {
 	Server struct {
-		Port string `yaml:"port"`
-		Host string `yaml:"host"`
+		Port           string `yaml:"port"`
+		UpdateInterval int    `yaml:"updateInterval"`
+		DownloadDir    string `yaml:"downloadDir"`
+		UploadDir      string `yaml:"upploadDir"`
+		PublicDir      string `yaml:"publicDir"`
 	} `yaml:"server"`
 	Lists struct {
-		Block []string `yaml:"block"`
+		Bl      []string `yaml:"bl"`
+		BlPlain []string `yaml:"bl_plain"`
+		Wl      []string `yaml:"wl"`
+		WlPlain []string `yaml:"wl_plain"`
+		IpPlain []string `yaml:"ip_plain"`
 	} `yaml:"lists"`
 }
 
@@ -29,7 +38,7 @@ func loadConfig(filename string) (Config, error) {
 }
 
 func main() {
-	config, _ := loadConfig("test.yml")
+	config, _ := loadConfig(CONFIG)
 	fmt.Println(config.Server.Port)
-	fmt.Println(config.Lists.Block)
+	fmt.Println(config.Lists.Bl)
 }

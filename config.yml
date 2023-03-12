@@ -1,32 +1,27 @@
-default:
-  server:
-    # Server port listening
-    port: 3300
-    # Interval in minutes
-    update_interval: 1
-  download_dir:
-    download
-  upload_dir:
-    upload
-  public_dir:
-    public
-  lists:
-    bl:
+server:
+  port: 3300
+  update_interval: 1
+  download_dir: download
+  upload_dir: upload
+  public_dir: public
+
+lists:
+  bl:
 #      - TODO: Download files with same names?
-      - https://raw.githubusercontent.com/m0zgen/dns-hole/master/dns-blacklist.txt
-    bl_plain:
-      - https://raw.githubusercontent.com/m0zgen/dns-hole/master/regex/common-bl.txt
-      - https://raw.githubusercontent.com/m0zgen/bld-agregator/data/blocklist.txt
-    wl:
-      - https://raw.githubusercontent.com/m0zgen/dns-hole/master/whitelist.txt
-      - https://raw.githubusercontent.com/m0zgen/dns-hole/master/bld-testing/wl-testing
-      - https://raw.githubusercontent.com/m0zgen/dns-hole/master/vendors-wl/microsoft.txt
-      - https://raw.githubusercontent.com/m0zgen/dns-hole/master/vendors-wl/google.txt
-    wl_plain:
-      - https://raw.githubusercontent.com/m0zgen/dns-hole/master/regex/common-wl.txt
-      - https://raw.githubusercontent.com/m0zgen/bld-agregator/data/allowlist.txt
-    ip_plain:
-      - https://osint.digitalside.it/Threat-Intel/lists/latestips.txt
-      - https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset
-      - https://feodotracker.abuse.ch/downloads/ipblocklist_recommended.txt
-      - https://iplists.firehol.org/files/firehol_level1.netset
+    - https://raw.githubusercontent.com/m0zgen/dns-hole/master/dns-blacklist.txt
+  bl_plain:
+    - https://raw.githubusercontent.com/m0zgen/dns-hole/master/regex/common-bl.txt
+    - https://raw.githubusercontent.com/m0zgen/bld-agregator/data/blocklist.txt
+  wl:
+    - https://raw.githubusercontent.com/m0zgen/dns-hole/master/whitelist.txt
+    - https://raw.githubusercontent.com/m0zgen/dns-hole/master/bld-testing/wl-testing
+    - https://raw.githubusercontent.com/m0zgen/dns-hole/master/vendors-wl/microsoft.txt
+    - https://raw.githubusercontent.com/m0zgen/dns-hole/master/vendors-wl/google.txt
+  wl_plain:
+    - https://raw.githubusercontent.com/m0zgen/dns-hole/master/regex/common-wl.txt
+    - https://raw.githubusercontent.com/m0zgen/bld-agregator/data/allowlist.txt
+  ip_plain:
+    - https://osint.digitalside.it/Threat-Intel/lists/latestips.txt
+    - https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset
+    - https://feodotracker.abuse.ch/downloads/ipblocklist_recommended.txt
+    - https://iplists.firehol.org/files/firehol_level1.netset
