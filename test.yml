@@ -1,0 +1,10 @@
+# Server configurations
+server:
+  host: "localhost"
+  port: 8000
+
+lists:
+  block:
+    - list1
+    - list2
+    - list3
