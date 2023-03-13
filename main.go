@@ -48,6 +48,16 @@ func loadConfig(filename string, dirStatus bool) (Config, error) {
 	return config, err
 }
 
+func isFlagPassed(name string) bool {
+	found := false
+	flag.Visit(func(f *flag.Flag) {
+		if f.Name == name {
+			found = true
+		}
+	})
+	return found
+}
+
 func getWorkDir() string {
 	ex, err := os.Executable()
 	if err != nil {
@@ -62,6 +72,27 @@ func getWorkDir() string {
 		return "."
 	}
 	return filepath.Dir(ex)
+}
+
+func isFileExists(file string) bool {
+	if _, err := os.Stat(file); err == nil {
+		return true
+	} else {
+		return false
+	}
+}
+
+func isFileMatched(path1, path2 string) (sameSize bool, err error) {
+	f1, err := os.Stat(path1)
+	if err != nil {
+		return
+	}
+	f2, err := os.Stat(path2)
+	if err != nil {
+		return
+	}
+	sameSize = f1.Size() == f2.Size()
+	return
 }
 
 func updatePath(filename string) string {
@@ -95,8 +126,23 @@ func getFilenameFromUrl(urlstr string) string {
 	return filepath.Base(x)
 }
 
-func downloadFile(url string) error {
-	var filepath string = getFilenameFromUrl(url)
+func downloadFile(url string, dest string) error {
+	var postfix string = "_prev"
+	var filename string = getFilenameFromUrl(url)
+	var filepath string = filepath.Join(dest, filename)
+	// Check exists file for processing in future
+	//if exists := getFileExists(filepath); exists == true {
+	//	fmt.Printf("File exists %s\n", filename)
+	//}
+
+	exist := isFileExists(filepath)
+	if exist {
+		e := os.Rename(filepath, filepath+postfix)
+		if e != nil {
+			log.Fatal(e)
+		}
+	}
+
 	// Create the file
 	out, err := os.Create(filepath)
 	if err != nil {
@@ -105,6 +151,7 @@ func downloadFile(url string) error {
 	defer out.Close()
 
 	// Get the data
+	fmt.Printf("Downloading file %s\n", filepath)
 	resp, err := http.Get(url)
 
 	if err != nil {
@@ -118,43 +165,54 @@ func downloadFile(url string) error {
 		return err
 	}
 
+	if exist {
+
+		matched, _ := isFileMatched(filepath, filepath+postfix)
+		if matched {
+			fmt.Println("Matched")
+		}
+	}
+
 	return nil
 }
 
-func iterateUrls(url []string) {
+func download(url []string, dest string) {
 	//fmt.Println(url[1])
 	for i, u := range url {
 		fmt.Println(i, u)
-		downloadFile(u)
+		downloadFile(u, dest)
 	}
 }
 
 func main() {
 	var CONFIG string
+	var dirStatus bool = strings.Contains(getWorkDir(), ".")
 
 	//Add usage ./cactusd -config <config ath or name>
-	flag.StringVar(&CONFIG, "config", "config.yml", "Enter path or config file name ")
+	flag.StringVar(&CONFIG, "config", "config.yml", "Define config file")
 	flag.Parse()
+	if isFlagPassed("config") {
+		fmt.Println(`Argument "-config" passed`)
+	}
 
-	dirStatus := strings.Contains(getWorkDir(), ".")
 	config, _ := loadConfig(CONFIG, dirStatus)
 
 	fmt.Println(config.Server.Port)
 
 	createDir(config.Server.DownloadDir+"/bl", dirStatus)
-	iterateUrls(config.Lists.Bl)
+	download(config.Lists.Bl, config.Server.DownloadDir+"/bl")
 
-	//createDir(config.Server.DownloadDir+"/wl", dirStatus)
-	//iterateUrls(config.Lists.Wl)
-	//
-	//createDir(config.Server.DownloadDir+"/bl_plain", dirStatus)
-	//iterateUrls(config.Lists.BlPlain)
-	//
-	//createDir(config.Server.DownloadDir+"/wl_plain", dirStatus)
-	//iterateUrls(config.Lists.WlPlain)
-	//
-	//createDir(config.Server.DownloadDir+"/ip_plain", dirStatus)
-	//iterateUrls(config.Lists.IpPlain)
+	createDir(config.Server.DownloadDir+"/wl", dirStatus)
+	download(config.Lists.Wl, config.Server.DownloadDir+"/wl")
+
+	createDir(config.Server.DownloadDir+"/bl_plain", dirStatus)
+	download(config.Lists.BlPlain, config.Server.DownloadDir+"/bl_plain")
+
+	createDir(config.Server.DownloadDir+"/wl_plain", dirStatus)
+	download(config.Lists.WlPlain, config.Server.DownloadDir+"/wl_plain")
+
+	createDir(config.Server.DownloadDir+"/ip_plain", dirStatus)
+	download(config.Lists.IpPlain, config.Server.DownloadDir+"/ip_plain")
 
 	//
 
