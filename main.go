@@ -249,12 +249,12 @@ func main() {
 	download(config.Lists.IpPlain, config.Server.DownloadDir+"/ip_plain")
 
 	//// Process merged files
-	//files, err := ioutil.ReadDir(MergedDir)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//
-	//for _, file := range files {
-	//	fmt.Println(file.Name(), file.IsDir())
-	//}
+	files, err := os.ReadDir(MergedDir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, file := range files {
+		fmt.Println(file.Name(), file.IsDir())
+	}
 }
