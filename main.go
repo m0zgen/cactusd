@@ -14,6 +14,8 @@ import (
 	"strings"
 )
 
+const MergedDir string = "merged"
+
 type Config struct {
 	Server struct {
 		Port           string `yaml:"port"`
@@ -73,6 +75,13 @@ func getWorkDir() string {
 		return "."
 	}
 	return filepath.Dir(ex)
+}
+
+func deleteFile(file string) {
+	e := os.Remove(file)
+	if e != nil {
+		log.Fatal(e)
+	}
 }
 
 func isFileExists(file string) bool {
@@ -177,15 +186,24 @@ func downloadFile(url string, dest string) error {
 		return err
 	}
 
+	mergedFileName := MergedDir + "/" + getFilenameFromUrl(dest) + ".txt"
 	if exist {
 		matched, _ := isFileMatched(filepath, filepath+postfix)
 		if matched {
 			fmt.Println("Previous and current files - matched. No needed action.")
 		} else {
-			mergeFiles(dest, ".txt", "merged")
+			fmt.Printf("Merging files: %s\n", filename)
+
+			if isFileExists(mergedFileName) {
+				deleteFile(mergedFileName)
+			}
+			mergeFiles(dest, ".txt", mergedFileName)
 		}
 	} else {
-		mergeFiles(dest, ".txt", "merged/"+getFilenameFromUrl(dest)+".txt")
+		if isFileExists(mergedFileName) {
+			deleteFile(mergedFileName)
+		}
+		mergeFiles(dest, ".txt", mergedFileName)
 	}
 
 	return nil
@@ -213,7 +231,7 @@ func main() {
 	config, _ := loadConfig(CONFIG, dirStatus)
 
 	//fmt.Println(config.Server.Port)
-	createDir("merged", dirStatus)
+	createDir(MergedDir, dirStatus)
 
 	createDir(config.Server.DownloadDir+"/bl", dirStatus)
 	download(config.Lists.Bl, config.Server.DownloadDir+"/bl")
@@ -230,6 +248,13 @@ func main() {
 	createDir(config.Server.DownloadDir+"/ip_plain", dirStatus)
 	download(config.Lists.IpPlain, config.Server.DownloadDir+"/ip_plain")
 
+	//// Process merged files
+	//files, err := ioutil.ReadDir(MergedDir)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
 	//
-
+	//for _, file := range files {
+	//	fmt.Println(file.Name(), file.IsDir())
+	//}
 }
