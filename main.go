@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	fileMerger "github.com/Ja7ad/goMerge"
 	"gopkg.in/yaml.v3"
 	"io"
 	"log"
@@ -126,10 +127,21 @@ func getFilenameFromUrl(urlstr string) string {
 	return filepath.Base(x)
 }
 
+func mergeFiles(path string, ext string, dest string) {
+	err := fileMerger.Merge(path, ext, dest, false)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func downloadFile(url string, dest string) error {
 	var postfix string = "_prev"
 	var filename string = getFilenameFromUrl(url)
 	var filepath string = filepath.Join(dest, filename)
+	if !strings.Contains(filename, ".txt") {
+		filepath = filepath + ".txt"
+	}
+
 	// Check exists file for processing in future
 	//if exists := getFileExists(filepath); exists == true {
 	//	fmt.Printf("File exists %s\n", filename)
@@ -166,11 +178,14 @@ func downloadFile(url string, dest string) error {
 	}
 
 	if exist {
-
 		matched, _ := isFileMatched(filepath, filepath+postfix)
 		if matched {
-			fmt.Println("Matched")
+			fmt.Println("Previous and current files - matched. No needed action.")
+		} else {
+			mergeFiles(dest, ".txt", "merged")
 		}
+	} else {
+		mergeFiles(dest, ".txt", "merged/"+getFilenameFromUrl(dest)+".txt")
 	}
 
 	return nil
@@ -197,7 +212,8 @@ func main() {
 
 	config, _ := loadConfig(CONFIG, dirStatus)
 
-	fmt.Println(config.Server.Port)
+	//fmt.Println(config.Server.Port)
+	createDir("merged", dirStatus)
 
 	createDir(config.Server.DownloadDir+"/bl", dirStatus)
 	download(config.Lists.Bl, config.Server.DownloadDir+"/bl")

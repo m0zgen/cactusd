@@ -1,3 +1,5 @@
+github.com/Ja7ad/goMerge v0.1.1 h1:TT51nX0GaMLbv388CQWUZW+N8ncYEiMJYUGNMWGh1n0=
+github.com/Ja7ad/goMerge v0.1.1/go.mod h1:jA4kiN6r9grx15vCtocuSxtzB2eKECvOOgE1el4aKbA=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
