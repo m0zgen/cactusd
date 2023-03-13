@@ -30,12 +30,10 @@ func loadConfig(filename string, dirStatus bool) (Config, error) {
 	var config Config
 	// Check go run or run binary
 	if !dirStatus {
-		var path string
-		path = GetWorkDir()
-		filename = path + "/" + filename
+		filename = updatePath(filename)
 	}
 	configFile, err := os.Open(filename)
-	fmt.Println(filename)
+	//fmt.Println(filename)
 	defer configFile.Close()
 	if err != nil {
 		return config, err
@@ -46,9 +44,35 @@ func loadConfig(filename string, dirStatus bool) (Config, error) {
 	return config, err
 }
 
-func checkDir(dirName string) error {
+func getWorkDir() string {
+	ex, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
 
-	err := os.MkdirAll(dirName, os.ModeDir)
+	dir := filepath.Dir(ex)
+
+	// Helpful when developing:
+	// when running `go run`, the executable is in a temporary directory.
+	if strings.Contains(dir, "go-build") {
+		return "."
+	}
+	return filepath.Dir(ex)
+}
+
+func updatePath(filename string) string {
+	var path string
+	path = getWorkDir()
+	filename = path + "/" + filename
+	return filename
+}
+
+func createDir(dirName string, dirStatus bool) error {
+
+	if !dirStatus {
+		dirName = updatePath(dirName)
+	}
+	err := os.MkdirAll(dirName, os.ModeSticky|os.ModePerm)
 
 	if err == nil || os.IsExist(err) {
 		return nil
@@ -68,22 +92,6 @@ func iterateUrls(url []string) {
 	}
 }
 
-func GetWorkDir() string {
-	ex, err := os.Executable()
-	if err != nil {
-		panic(err)
-	}
-
-	dir := filepath.Dir(ex)
-
-	// Helpful when developing:
-	// when running `go run`, the executable is in a temporary directory.
-	if strings.Contains(dir, "go-build") {
-		return "."
-	}
-	return filepath.Dir(ex)
-}
-
 func main() {
 	var CONFIG string
 
@@ -91,12 +99,13 @@ func main() {
 	flag.StringVar(&CONFIG, "config", "config.yml", "Enter path or config file name ")
 	flag.Parse()
 
-	dirStatus := strings.Contains(GetWorkDir(), ".")
+	dirStatus := strings.Contains(getWorkDir(), ".")
 	config, _ := loadConfig(CONFIG, dirStatus)
 
-	fmt.Println(config.Server.Port)
-	//checkDir("download-aaaaa")
-	//iterateUrls(config.Lists.Wl)
-	//getCurrentDir()
-	fmt.Println(GetWorkDir())
+	//fmt.Println(config.Server.Port)
+
+	createDir("download/wl", dirStatus)
+
+	iterateUrls(config.Lists.Bl)
+
 }
