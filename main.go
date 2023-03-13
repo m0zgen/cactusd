@@ -4,6 +4,10 @@ import (
 	"flag"
 	"fmt"
 	"gopkg.in/yaml.v3"
+	"io"
+	"log"
+	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -12,10 +16,10 @@ import (
 type Config struct {
 	Server struct {
 		Port           string `yaml:"port"`
-		UpdateInterval int    `yaml:"updateInterval"`
-		DownloadDir    string `yaml:"downloadDir"`
-		UploadDir      string `yaml:"upploadDir"`
-		PublicDir      string `yaml:"publicDir"`
+		UpdateInterval int    `yaml:"update_interval"`
+		DownloadDir    string `yaml:"download_dir"`
+		UploadDir      string `yaml:"upload_dir"`
+		PublicDir      string `yaml:"public_dir"`
 	} `yaml:"server"`
 	Lists struct {
 		Bl      []string `yaml:"bl"`
@@ -81,14 +85,47 @@ func createDir(dirName string, dirStatus bool) error {
 	}
 }
 
-func downloadFile(file string, url string) {
-	fmt.Println("Download file from link: " + url + " to: " + file)
+// Thx: https://github.com/peeyushsrj/golang-snippets
+func getFilenameFromUrl(urlstr string) string {
+	u, err := url.Parse(urlstr)
+	if err != nil {
+		log.Fatal("Error due to parsing url: ", err)
+	}
+	x, _ := url.QueryUnescape(u.EscapedPath())
+	return filepath.Base(x)
+}
+
+func downloadFile(url string) error {
+	var filepath string = getFilenameFromUrl(url)
+	// Create the file
+	out, err := os.Create(filepath)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	// Get the data
+	resp, err := http.Get(url)
+
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	// Write the body to file
+	_, err = io.Copy(out, resp.Body)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func iterateUrls(url []string) {
 	//fmt.Println(url[1])
 	for i, u := range url {
 		fmt.Println(i, u)
+		downloadFile(u)
 	}
 }
 
@@ -102,10 +139,23 @@ func main() {
 	dirStatus := strings.Contains(getWorkDir(), ".")
 	config, _ := loadConfig(CONFIG, dirStatus)
 
-	//fmt.Println(config.Server.Port)
+	fmt.Println(config.Server.Port)
 
-	createDir("download/wl", dirStatus)
-
+	createDir(config.Server.DownloadDir+"/bl", dirStatus)
 	iterateUrls(config.Lists.Bl)
+
+	//createDir(config.Server.DownloadDir+"/wl", dirStatus)
+	//iterateUrls(config.Lists.Wl)
+	//
+	//createDir(config.Server.DownloadDir+"/bl_plain", dirStatus)
+	//iterateUrls(config.Lists.BlPlain)
+	//
+	//createDir(config.Server.DownloadDir+"/wl_plain", dirStatus)
+	//iterateUrls(config.Lists.WlPlain)
+	//
+	//createDir(config.Server.DownloadDir+"/ip_plain", dirStatus)
+	//iterateUrls(config.Lists.IpPlain)
+
+	//
 
 }
