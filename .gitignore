@@ -10,6 +10,7 @@ download
 tmp
 temp
 backup
+merge*
 
 # Prod configs
 .prod
