@@ -1,12 +1,20 @@
-# Envs
-.env*
-.env.production
+# Binary
+cactusd
 
 # Server works dirs
-config/prod*
+public
+upload
 download
-tests
-node_modules
+
+# Temps
+tmp
+temp
+backup
+
+# Prod configs
+.prod
+config-*
+config/prod*
 
 # System files
 .DS_Store
