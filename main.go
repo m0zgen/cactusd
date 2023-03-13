@@ -1,12 +1,12 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"gopkg.in/yaml.v3"
 	"os"
+	"path/filepath"
 )
-
-const CONFIG string = "config.yml"
 
 type Config struct {
 	Server struct {
@@ -28,6 +28,8 @@ type Config struct {
 func loadConfig(filename string) (Config, error) {
 	var config Config
 	configFile, err := os.Open(filename)
+	fmt.Println(filename)
+	defer configFile.Close()
 	if err != nil {
 		return config, err
 	}
@@ -37,8 +39,40 @@ func loadConfig(filename string) (Config, error) {
 	return config, err
 }
 
+func getCurrentDir() (string, error) {
+	ex, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		return ex, err
+	}
+	path := filepath.Dir(ex)
+	fmt.Println(path)
+	return path, nil
+}
+
+//func checkDir(dir string) status, err {
+//
+//}
+
+func downloadFile(file string, url string) {
+	fmt.Println("Download file from link: " + url + " to: " + file)
+}
+
+func iterateUrls(url []string) {
+	//fmt.Println(url[1])
+	for i, u := range url {
+		fmt.Println(i, u)
+	}
+}
+
 func main() {
+	var CONFIG string
+
+	//Add usage ./cactusd -config <config ath or name>
+	flag.StringVar(&CONFIG, "config", "config.yml", "Enter path or config file name ")
+	flag.Parse()
+
 	config, _ := loadConfig(CONFIG)
 	fmt.Println(config.Server.Port)
-	fmt.Println(config.Lists.Bl)
+	//iterateUrls(config.Lists.Wl)
+	getCurrentDir()
 }
