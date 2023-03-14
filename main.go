@@ -16,6 +16,7 @@ import (
 
 const MergedDir string = "merged"
 
+// Config file structure
 type Config struct {
 	Server struct {
 		Port           string `yaml:"port"`
@@ -33,6 +34,7 @@ type Config struct {
 	} `yaml:"lists"`
 }
 
+// Config file loader
 func loadConfig(filename string, dirStatus bool) (Config, error) {
 	var config Config
 	// Check go run or run binary
@@ -51,6 +53,7 @@ func loadConfig(filename string, dirStatus bool) (Config, error) {
 	return config, err
 }
 
+// If argument passed
 func isFlagPassed(name string) bool {
 	found := false
 	flag.Visit(func(f *flag.Flag) {
@@ -61,6 +64,30 @@ func isFlagPassed(name string) bool {
 	return found
 }
 
+// If file exist in target
+func isFileExists(file string) bool {
+	if _, err := os.Stat(file); err == nil {
+		return true
+	} else {
+		return false
+	}
+}
+
+// If two file is the same
+func isFileMatched(path1, path2 string) (sameSize bool, err error) {
+	f1, err := os.Stat(path1)
+	if err != nil {
+		return
+	}
+	f2, err := os.Stat(path2)
+	if err != nil {
+		return
+	}
+	sameSize = f1.Size() == f2.Size()
+	return
+}
+
+// Detect runner form binary or form "go run"
 func getWorkDir() string {
 	ex, err := os.Executable()
 	if err != nil {
@@ -77,34 +104,7 @@ func getWorkDir() string {
 	return filepath.Dir(ex)
 }
 
-func deleteFile(file string) {
-	e := os.Remove(file)
-	if e != nil {
-		log.Fatal(e)
-	}
-}
-
-func isFileExists(file string) bool {
-	if _, err := os.Stat(file); err == nil {
-		return true
-	} else {
-		return false
-	}
-}
-
-func isFileMatched(path1, path2 string) (sameSize bool, err error) {
-	f1, err := os.Stat(path1)
-	if err != nil {
-		return
-	}
-	f2, err := os.Stat(path2)
-	if err != nil {
-		return
-	}
-	sameSize = f1.Size() == f2.Size()
-	return
-}
-
+// Auto config file path updater
 func updatePath(filename string) string {
 	var path string
 	path = getWorkDir()
@@ -112,6 +112,15 @@ func updatePath(filename string) string {
 	return filename
 }
 
+// Delete target file
+func deleteFile(file string) {
+	e := os.Remove(file)
+	if e != nil {
+		log.Fatal(e)
+	}
+}
+
+// Create cataog in target place
 func createDir(dirName string, dirStatus bool) error {
 
 	if !dirStatus {
@@ -126,6 +135,7 @@ func createDir(dirName string, dirStatus bool) error {
 	}
 }
 
+// Get last octet in passed string
 // Thx: https://github.com/peeyushsrj/golang-snippets
 func getFilenameFromUrl(urlstr string) string {
 	u, err := url.Parse(urlstr)
@@ -136,6 +146,7 @@ func getFilenameFromUrl(urlstr string) string {
 	return filepath.Base(x)
 }
 
+// Merge files to one from folder to target
 func mergeFiles(path string, ext string, dest string) {
 	err := fileMerger.Merge(path, ext, dest, false)
 	if err != nil {
@@ -143,6 +154,7 @@ func mergeFiles(path string, ext string, dest string) {
 	}
 }
 
+// URL file downloader
 func downloadFile(url string, dest string) error {
 	var postfix string = "_prev"
 	var filename string = getFilenameFromUrl(url)
@@ -209,6 +221,7 @@ func downloadFile(url string, dest string) error {
 	return nil
 }
 
+// URL iterator
 func download(url []string, dest string) {
 	//fmt.Println(url[1])
 	for i, u := range url {
@@ -217,6 +230,7 @@ func download(url []string, dest string) {
 	}
 }
 
+// Main logic
 func main() {
 	var CONFIG string
 	var dirStatus bool = strings.Contains(getWorkDir(), ".")
@@ -255,6 +269,13 @@ func main() {
 	}
 
 	for _, file := range files {
-		fmt.Println(file.Name(), file.IsDir())
+		//fmt.Println(file.Name(), file.IsDir())
+		var plain bool = strings.Contains(file.Name(), "plain")
+		if plain {
+			fmt.Println("Plain recurse for - " + file.Name())
+		} else {
+			fmt.Println("Full recurse for - " + file.Name())
+		}
+
 	}
 }
