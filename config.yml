@@ -9,6 +9,7 @@ lists:
   bl:
 #      - TODO: Download files with same names?
     - https://raw.githubusercontent.com/m0zgen/dns-hole/master/dns-blacklist.txt
+    - https://raw.githubusercontent.com/StevenBlack/hosts/master/data/StevenBlack/hosts
   bl_plain:
     - https://raw.githubusercontent.com/m0zgen/dns-hole/master/regex/common-bl.txt
     - https://raw.githubusercontent.com/m0zgen/bld-agregator/data/blocklist.txt

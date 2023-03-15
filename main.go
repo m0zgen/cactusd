@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	fileMerger "github.com/Ja7ad/goMerge"
@@ -11,10 +12,13 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
 const MergedDir string = "merged"
+
+var BufferSize int64
 
 // Config file structure
 type Config struct {
@@ -51,6 +55,13 @@ func loadConfig(filename string, dirStatus bool) (Config, error) {
 	decoder := yaml.NewDecoder(configFile)
 	err = decoder.Decode(&config)
 	return config, err
+}
+
+// Error handler
+func handleErr(e error) {
+	if e != nil {
+		panic(e)
+	}
 }
 
 // If argument passed
@@ -118,6 +129,59 @@ func deleteFile(file string) {
 	if e != nil {
 		log.Fatal(e)
 	}
+}
+
+func copyFile(src, dst string, BUFFERSIZE int64) error {
+	sourceFileStat, err := os.Stat(src)
+	if err != nil {
+		return err
+	}
+
+	if !sourceFileStat.Mode().IsRegular() {
+		return fmt.Errorf("%s is not a regular file.", src)
+	}
+
+	source, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer source.Close()
+
+	if isFileExists(dst) {
+		deleteFile(dst)
+	}
+
+	_, err = os.Stat(dst)
+	if err == nil {
+		return fmt.Errorf("File %s already exists.", dst)
+
+	}
+
+	destination, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer destination.Close()
+
+	if err != nil {
+		panic(err)
+	}
+
+	buf := make([]byte, BUFFERSIZE)
+	for {
+		n, err := source.Read(buf)
+		if err != nil && err != io.EOF {
+			return err
+		}
+		if n == 0 {
+			break
+		}
+
+		if _, err := destination.Write(buf[:n]); err != nil {
+			return err
+		}
+	}
+	return err
 }
 
 // Create cataog in target place
@@ -230,11 +294,159 @@ func download(url []string, dest string) {
 	}
 }
 
+func cleanFile(file string) {
+	if isFileExists(file) {
+		if err := os.Truncate(file, 0); err != nil {
+			log.Printf("Failed to truncate: %v", err)
+		}
+	}
+}
+
+// Full regex - extract domain names
+func fullRegex(file string, filename string, out string) {
+	dat, err := os.Open(file)
+	handleErr(err)
+	defer dat.Close()
+
+	scanner := bufio.NewScanner(dat)
+	r1 := regexp.MustCompile(`(^#.*$)`)
+	r2 := regexp.MustCompile(`(^(\/.*\/)$)|(^[a-z].*$)|(?:[\w-]+\.)+[\w-]+`)
+	//re := regexp.MustCompile(`(?i)^(.*)(?:Inc\.|Incorp\.|Incorporation\.|Incorpa\.)(.*)$`)
+
+	outFile := out + "/" + filename
+	cleanFile(outFile)
+	f, err := os.OpenFile(outFile,
+		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Println(err)
+	}
+	defer f.Close()
+
+	//
+	for scanner.Scan() {
+
+		if !r1.MatchString(scanner.Text()) {
+			if _, err := f.WriteString(scanner.Text() + "\n"); err != nil {
+				log.Println(err)
+			}
+			//fmt.Println(scanner.Text())
+		}
+		if r2.MatchString(scanner.Text()) {
+			if _, err := f.WriteString(scanner.Text() + "\n"); err != nil {
+				log.Println(err)
+			}
+			//fmt.Println(scanner.Text())
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		handleErr(err)
+	}
+
+}
+
+// Thx: https://gist.github.com/m0zgen/af44035db3102d08effc2d38e56c01f3
+func prepareFiles(path string, fi os.FileInfo, err error) error {
+
+	if err != nil {
+		return err
+	}
+
+	if !!fi.IsDir() {
+		return nil //
+	}
+
+	matched, err := filepath.Match("*.txt", fi.Name())
+
+	if err != nil {
+		panic(err)
+		return err
+	}
+
+	replacer := strings.NewReplacer(
+		"0.0.0.0 ", "",
+		"0.0.0.0/8", "",
+		"127.0.0.1", "",
+		"=", "",
+		"\n\n", "\n",
+		" ", "",
+	)
+
+	r := regexp.MustCompile(`((?m)(^#|\s#).*)`)
+	// Select empty lines
+	r2 := regexp.MustCompile(`(?m)^\s*$[\r\n]*|[\r\n]+\s+\z`)
+	// Extract domain names from list:
+	// (^(\/.*\/)$)|(^[a-z].*$)|(?:[\w-]+\.)+[\w-]+
+
+	if matched {
+		read, err := os.ReadFile(path)
+		handleErr(err)
+		//fmt.Println(string(read))
+		fmt.Println(path)
+
+		newContents := replacer.Replace(string(read))
+		//newContents := strings.Replace(string(read), "0.0.0.0 ", "", -1)
+		newContents = r.ReplaceAllString(newContents, "\n")
+		newContents = r2.ReplaceAllString(newContents, "\n")
+		//fmt.Println(newContents)
+
+		err = os.WriteFile(path, []byte(newContents), 0)
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Println(path)
+	}
+
+	return nil
+}
+
+// Process merged file
+func publishFiles(mergeddir string, out string) {
+	//// Process merged files
+	files, err := os.ReadDir(MergedDir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, file := range files {
+		fmt.Println(file.Name(), file.IsDir())
+		var plain bool = strings.Contains(file.Name(), "plain")
+		var f string = mergeddir + "/" + file.Name()
+
+		if plain {
+			fmt.Println("Plain recurse for - " + f)
+			//plainRegex(f, file.Name(), out)
+		} else {
+			fmt.Println("Full recurse for - " + file.Name())
+			//fullRegex(f, file.Name(), out)
+		}
+
+		// Thx: https://github.com/mactsouk/opensource.com
+		//BufferSize, err := strconv.ParseInt("/tmp/buf", 10, 64)
+		if err != nil {
+			fmt.Printf("Invalid buffer size: %q\n", err)
+			return
+		}
+		fmt.Println("Copy files from:" + f + " to: " + out + "/" + file.Name())
+		err = copyFile(f, out+"/"+file.Name(), 20)
+		if err != nil {
+			fmt.Printf("File copying failed: %q\n", err)
+		}
+		fmt.Println("Publish files - Done!")
+		//err := filepath.Walk(out, prepareFiles)
+		//handleErr(err)
+	}
+}
+
 // Main logic
 func main() {
+
+	// Get config and determine location
 	var CONFIG string
 	var dirStatus bool = strings.Contains(getWorkDir(), ".")
 
+	// Get agrs
 	//Add usage ./cactusd -config <config ath or name>
 	flag.StringVar(&CONFIG, "config", "config.yml", "Define config file")
 	flag.Parse()
@@ -242,10 +454,13 @@ func main() {
 		fmt.Println(`Argument "-config" passed`)
 	}
 
+	// Load config
 	config, _ := loadConfig(CONFIG, dirStatus)
 
+	// Process catalogs & download
 	//fmt.Println(config.Server.Port)
 	createDir(MergedDir, dirStatus)
+	createDir(config.Server.PublicDir, dirStatus)
 
 	createDir(config.Server.DownloadDir+"/bl", dirStatus)
 	download(config.Lists.Bl, config.Server.DownloadDir+"/bl")
@@ -262,20 +477,9 @@ func main() {
 	createDir(config.Server.DownloadDir+"/ip_plain", dirStatus)
 	download(config.Lists.IpPlain, config.Server.DownloadDir+"/ip_plain")
 
-	//// Process merged files
-	files, err := os.ReadDir(MergedDir)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// Cleaning Process
 
-	for _, file := range files {
-		//fmt.Println(file.Name(), file.IsDir())
-		var plain bool = strings.Contains(file.Name(), "plain")
-		if plain {
-			fmt.Println("Plain recurse for - " + file.Name())
-		} else {
-			fmt.Println("Full recurse for - " + file.Name())
-		}
-
-	}
+	err := filepath.Walk(MergedDir, prepareFiles)
+	handleErr(err)
+	publishFiles(MergedDir, config.Server.PublicDir)
 }
