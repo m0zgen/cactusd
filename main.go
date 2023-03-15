@@ -131,6 +131,8 @@ func deleteFile(file string) {
 	}
 }
 
+// Thx: https://github.com/mactsouk/opensource.com
+// Reference: https://opensource.com/article/18/6/copying-files-go
 func copyFile(src, dst string, BUFFERSIZE int64) error {
 	sourceFileStat, err := os.Stat(src)
 	if err != nil {
@@ -302,7 +304,7 @@ func cleanFile(file string) {
 	}
 }
 
-// Full regex - extract domain names
+// Full regex - extract domain names (not used)
 func fullRegex(file string, filename string, out string) {
 	dat, err := os.Open(file)
 	handleErr(err)
@@ -422,8 +424,6 @@ func publishFiles(mergeddir string, out string) {
 			//fullRegex(f, file.Name(), out)
 		}
 
-		// Thx: https://github.com/mactsouk/opensource.com
-		//BufferSize, err := strconv.ParseInt("/tmp/buf", 10, 64)
 		if err != nil {
 			fmt.Printf("Invalid buffer size: %q\n", err)
 			return
