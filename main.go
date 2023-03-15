@@ -439,21 +439,7 @@ func publishFiles(mergeddir string, out string) {
 	}
 }
 
-// Main logic
-func main() {
-
-	// Get config and determine location
-	var CONFIG string
-	var dirStatus bool = strings.Contains(getWorkDir(), ".")
-
-	// Get agrs
-	//Add usage ./cactusd -config <config ath or name>
-	flag.StringVar(&CONFIG, "config", "config.yml", "Define config file")
-	flag.Parse()
-	if isFlagPassed("config") {
-		fmt.Println(`Argument "-config" passed`)
-	}
-
+func initial(CONFIG string, dirStatus bool) {
 	// Load config
 	config, _ := loadConfig(CONFIG, dirStatus)
 
@@ -462,6 +448,7 @@ func main() {
 	createDir(MergedDir, dirStatus)
 	createDir(config.Server.PublicDir, dirStatus)
 
+	// Download files
 	createDir(config.Server.DownloadDir+"/bl", dirStatus)
 	download(config.Lists.Bl, config.Server.DownloadDir+"/bl")
 
@@ -482,4 +469,23 @@ func main() {
 	err := filepath.Walk(MergedDir, prepareFiles)
 	handleErr(err)
 	publishFiles(MergedDir, config.Server.PublicDir)
+}
+
+// Main logic
+func main() {
+
+	// Get config and determine location
+	var CONFIG string
+	var dirStatus bool = strings.Contains(getWorkDir(), ".")
+
+	// Get agrs
+	//Add usage ./cactusd -config <config ath or name>
+	flag.StringVar(&CONFIG, "config", "config.yml", "Define config file")
+	flag.Parse()
+	if isFlagPassed("config") {
+		fmt.Println(`Argument "-config" passed`)
+	}
+
+	initial(CONFIG, dirStatus)
+
 }
