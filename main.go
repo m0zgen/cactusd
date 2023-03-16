@@ -11,10 +11,12 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"regexp"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 )
 
@@ -513,15 +515,48 @@ func main() {
 	go runHttpServer(config.Server.Port)
 	go runTicker(config, dirStatus, wg)
 
+	sigchnl := make(chan os.Signal, 1)
+	signal.Notify(sigchnl)
+	exitchnl := make(chan int)
+
+	// Handle interrupt signals
+	// Thx: https://www.developer.com/languages/os-signals-go/
+	go func() {
+		for {
+			s := <-sigchnl
+			handler(s)
+		}
+	}()
+
+	exitcode := <-exitchnl
+	os.Exit(exitcode)
+
 	wg.Wait()
 	// Routines end
 
+}
+
+func handler(signal os.Signal) {
+	if signal == syscall.SIGTERM {
+		fmt.Println("Got kill signal. ")
+		fmt.Println("Program will terminate now.")
+		os.Exit(0)
+	} else if signal == syscall.SIGINT {
+		fmt.Println("Got CTRL+C signal")
+		fmt.Println("Closing.")
+		os.Exit(0)
+	}
+}
+
+func getTime() string {
+	return time.Now().Format("2006-01-02 15:04:05")
 }
 
 func runTicker(config Config, dirStatus bool, group *sync.WaitGroup) {
 	defer group.Done()
 
 	initial(config, dirStatus)
+	fmt.Println("Interval done at: " + getTime())
 	fmt.Println("Next iteration will start after: " + config.Server.UpdateInterval)
 
 	duration, err := time.ParseDuration(config.Server.UpdateInterval)
@@ -530,7 +565,8 @@ func runTicker(config Config, dirStatus bool, group *sync.WaitGroup) {
 
 	for range tick {
 		initial(config, dirStatus)
-		fmt.Println(time.Now().Format("2006-01-02 15:04:05"))
+
+		fmt.Println("Interval done at: " + getTime())
 		fmt.Println("Next iteration will start after: " + config.Server.UpdateInterval)
 	}
 }
