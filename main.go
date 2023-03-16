@@ -14,6 +14,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
+	"time"
 )
 
 const MergedDir string = "merged"
@@ -24,7 +26,7 @@ var BufferSize int64
 type Config struct {
 	Server struct {
 		Port           string `yaml:"port"`
-		UpdateInterval int    `yaml:"update_interval"`
+		UpdateInterval string `yaml:"update_interval"`
 		DownloadDir    string `yaml:"download_dir"`
 		UploadDir      string `yaml:"upload_dir"`
 		PublicDir      string `yaml:"public_dir"`
@@ -55,6 +57,11 @@ func loadConfig(filename string, dirStatus bool) (Config, error) {
 	decoder := yaml.NewDecoder(configFile)
 	err = decoder.Decode(&config)
 	return config, err
+}
+
+// func getDatetime() time.Time
+func getDatetime() string {
+	return time.Now().Format("2006-01-02 15:04:05")
 }
 
 // Error handler
@@ -439,9 +446,7 @@ func publishFiles(mergeddir string, out string) {
 	}
 }
 
-func initial(CONFIG string, dirStatus bool) {
-	// Load config
-	config, _ := loadConfig(CONFIG, dirStatus)
+func initial(config Config, dirStatus bool) {
 
 	// Process catalogs & download
 	//fmt.Println(config.Server.Port)
@@ -477,6 +482,8 @@ func main() {
 	// Get config and determine location
 	var CONFIG string
 	var dirStatus bool = strings.Contains(getWorkDir(), ".")
+	var wg = new(sync.WaitGroup)
+	wg.Add(4)
 
 	// Get agrs
 	//Add usage ./cactusd -config <config ath or name>
@@ -486,6 +493,72 @@ func main() {
 		fmt.Println(`Argument "-config" passed`)
 	}
 
-	initial(CONFIG, dirStatus)
+	config, _ := loadConfig(CONFIG, dirStatus)
+	//fmt.Println(reflect.TypeOf(config))
 
+	// Routines start
+	// Will test multiple servers
+	//go func() {
+	//	server := createServer(3301, "Server 1")
+	//	fmt.Println(server.ListenAndServe())
+	//	wg.Done()
+	//}()
+	//
+	//go func() {
+	//	server := createServer(3302, "Server 2")
+	//	fmt.Println(server.ListenAndServe())x
+	//	wg.Done()
+	//}()
+
+	go runHttpServer(config.Server.Port)
+	go runTicker(config, dirStatus, wg)
+
+	wg.Wait()
+	// Routines end
+
+}
+
+func runTicker(config Config, dirStatus bool, group *sync.WaitGroup) {
+	defer group.Done()
+
+	initial(config, dirStatus)
+	fmt.Println("Next iteration will start after: " + config.Server.UpdateInterval)
+
+	duration, err := time.ParseDuration(config.Server.UpdateInterval)
+	handleErr(err)
+	tick := time.Tick(time.Duration(duration.Minutes()) * time.Minute)
+
+	for range tick {
+		initial(config, dirStatus)
+		fmt.Println(time.Now().Format("2006-01-02 15:04:05"))
+		fmt.Println("Next iteration will start after: " + config.Server.UpdateInterval)
+	}
+}
+
+func createServer(port int, name string) *http.Server {
+	// Create mux
+	mux := http.NewServeMux()
+	// Handler
+	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		fmt.Fprint(writer, "Hello from server: "+name)
+	})
+	// new server
+	server := http.Server{
+		Addr:    fmt.Sprintf(":%v", port),
+		Handler: mux,
+	}
+	return &server
+}
+
+func runHttpServer(port string) {
+
+	// Run server
+	fs := http.FileServer(http.Dir("./public"))
+	http.Handle("/", fs)
+
+	log.Print("Listening on : " + port)
+	err := http.ListenAndServe(":"+port, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

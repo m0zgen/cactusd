@@ -1,7 +1,7 @@
 server:
   port: 3300
-  # Heart beat
-  update_interval: 1
+  # Heart beat - 1m, 4h and etc
+  update_interval: 31m
   # Target to download
   download_dir: download
   # Upload catalog from remote clients
