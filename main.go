@@ -425,6 +425,7 @@ func initial(config Config, dirStatus bool) {
 	// Process catalogs & download
 	//fmt.Println(config.Server.Port)
 	createDir(MergedDir, dirStatus)
+	createDir(config.Server.UploadDir, dirStatus)
 	createDir(config.Server.PublicDir, dirStatus)
 	createDir(files, dirStatus)
 
@@ -470,11 +471,35 @@ func runTicker(config Config, dirStatus bool, group *sync.WaitGroup) {
 	}
 }
 
+func webUploadHandler(w http.ResponseWriter, r *http.Request) {
+	r.ParseMultipartForm(32 << 20)
+	file, header, err := r.FormFile("file") // the FormFile function takes in the POST input id file
+
+	if err != nil {
+		fmt.Fprintln(w, err)
+		return
+	}
+	defer file.Close()
+
+	//
+
+	f, err := os.OpenFile("./upload/"+header.Filename, os.O_WRONLY|os.O_CREATE, 0666)
+	handleErr(err)
+
+	defer f.Close()
+	io.Copy(f, file)
+
+	fmt.Fprintf(w, "File uploaded successfully : ")
+	fmt.Fprintf(w, header.Filename)
+
+}
+
 func runHttpServer(port string) {
 
 	fileHandler := http.StripPrefix("/", http.FileServer(http.Dir("public")))
 	http.Handle("/", fileHandler)
 	http.HandleFunc("/time", timeHandler)
+	http.HandleFunc("/upload", webUploadHandler)
 
 	// Run server
 	//handler := http.FileServer(http.Dir("./public"))
