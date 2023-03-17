@@ -21,3 +21,5 @@ config/prod*
 .DS_Store
 .idea
 .vscode
+
+dist/

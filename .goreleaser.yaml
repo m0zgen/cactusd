@@ -1,0 +1,47 @@
+# Documentation at https://goreleaser.com
+project_name: cactusd
+
+before:
+  hooks:
+    - go mod tidy
+    - go mod download
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwinr
+    targets:
+      - linux_amd64
+      - darwin_amd64
+      - windows_amd64
+    ignore:
+      - goos: darwin
+        goarch: arm, 386
+      - goos: linux
+        goarch: arm, 386
+      - goos: windows
+        goarch: arm, 386
+archives:
+  -
+    rlcp: true
+    wrap_in_directory: true
+    format_overrides:
+      - goos: windows
+        format: zip
+
+    files:
+      - README.md
+#gomod:
+#  proxy: true
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
