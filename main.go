@@ -420,10 +420,13 @@ func publishFiles(mergeddir string, out string) {
 
 func initial(config Config, dirStatus bool) {
 
+	// Folder name for published file, public sub-catalog
+	var files string = config.Server.PublicDir + "/files"
 	// Process catalogs & download
 	//fmt.Println(config.Server.Port)
 	createDir(MergedDir, dirStatus)
 	createDir(config.Server.PublicDir, dirStatus)
+	createDir(files, dirStatus)
 
 	// Download files
 	createDir(config.Server.DownloadDir+"/bl", dirStatus)
@@ -445,7 +448,7 @@ func initial(config Config, dirStatus bool) {
 
 	err := filepath.Walk(MergedDir, prepareFiles)
 	handleErr(err)
-	publishFiles(MergedDir, config.Server.PublicDir)
+	publishFiles(MergedDir, files)
 }
 
 func runTicker(config Config, dirStatus bool, group *sync.WaitGroup) {
@@ -469,15 +472,23 @@ func runTicker(config Config, dirStatus bool, group *sync.WaitGroup) {
 
 func runHttpServer(port string) {
 
+	fileHandler := http.StripPrefix("/", http.FileServer(http.Dir("public")))
+	http.Handle("/", fileHandler)
+	http.HandleFunc("/time", timeHandler)
+
 	// Run server
-	fs := http.FileServer(http.Dir("./public"))
-	http.Handle("/", fs)
+	//handler := http.FileServer(http.Dir("./public"))
+	//http.Handle("/download", handler)
 
 	log.Print("Listening on : " + port)
 	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func timeHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, time.Now().Format("02 Jan 2006 15:04:05 MST"))
 }
 
 // Main logic
