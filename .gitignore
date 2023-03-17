@@ -2,7 +2,7 @@
 cactusd
 
 # Server works dirs
-public
+public/files
 upload
 download
 
