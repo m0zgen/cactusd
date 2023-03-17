@@ -62,7 +62,7 @@ func loadConfig(filename string, dirStatus bool) (Config, error) {
 }
 
 // func getDatetime() time.Time
-func getDatetime() string {
+func getTime() string {
 	return time.Now().Format("2006-01-02 15:04:05")
 }
 
@@ -70,6 +70,19 @@ func getDatetime() string {
 func handleErr(e error) {
 	if e != nil {
 		panic(e)
+	}
+}
+
+// Sigterm handler
+func handler(signal os.Signal) {
+	if signal == syscall.SIGTERM {
+		fmt.Println("Got kill signal. ")
+		fmt.Println("Program will terminate now.")
+		os.Exit(0)
+	} else if signal == syscall.SIGINT {
+		fmt.Println("Got CTRL+C signal")
+		fmt.Println("Closing.")
+		os.Exit(0)
 	}
 }
 
@@ -313,49 +326,6 @@ func cleanFile(file string) {
 	}
 }
 
-// Full regex - extract domain names (not used)
-func fullRegex(file string, filename string, out string) {
-	dat, err := os.Open(file)
-	handleErr(err)
-	defer dat.Close()
-
-	scanner := bufio.NewScanner(dat)
-	r1 := regexp.MustCompile(`(^#.*$)`)
-	r2 := regexp.MustCompile(`(^(\/.*\/)$)|(^[a-z].*$)|(?:[\w-]+\.)+[\w-]+`)
-	//re := regexp.MustCompile(`(?i)^(.*)(?:Inc\.|Incorp\.|Incorporation\.|Incorpa\.)(.*)$`)
-
-	outFile := out + "/" + filename
-	cleanFile(outFile)
-	f, err := os.OpenFile(outFile,
-		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		log.Println(err)
-	}
-	defer f.Close()
-
-	//
-	for scanner.Scan() {
-
-		if !r1.MatchString(scanner.Text()) {
-			if _, err := f.WriteString(scanner.Text() + "\n"); err != nil {
-				log.Println(err)
-			}
-			//fmt.Println(scanner.Text())
-		}
-		if r2.MatchString(scanner.Text()) {
-			if _, err := f.WriteString(scanner.Text() + "\n"); err != nil {
-				log.Println(err)
-			}
-			//fmt.Println(scanner.Text())
-		}
-	}
-
-	if err := scanner.Err(); err != nil {
-		handleErr(err)
-	}
-
-}
-
 // Thx: https://gist.github.com/m0zgen/af44035db3102d08effc2d38e56c01f3
 func prepareFiles(path string, fi os.FileInfo, err error) error {
 
@@ -478,6 +448,38 @@ func initial(config Config, dirStatus bool) {
 	publishFiles(MergedDir, config.Server.PublicDir)
 }
 
+func runTicker(config Config, dirStatus bool, group *sync.WaitGroup) {
+	defer group.Done()
+
+	initial(config, dirStatus)
+	fmt.Println("Interval done at: " + getTime())
+	fmt.Println("Next iteration will start after: " + config.Server.UpdateInterval)
+
+	duration, err := time.ParseDuration(config.Server.UpdateInterval)
+	handleErr(err)
+	tick := time.Tick(time.Duration(duration.Minutes()) * time.Minute)
+
+	for range tick {
+		initial(config, dirStatus)
+
+		fmt.Println("Interval done at: " + getTime())
+		fmt.Println("Next iteration will start after: " + config.Server.UpdateInterval)
+	}
+}
+
+func runHttpServer(port string) {
+
+	// Run server
+	fs := http.FileServer(http.Dir("./public"))
+	http.Handle("/", fs)
+
+	log.Print("Listening on : " + port)
+	err := http.ListenAndServe(":"+port, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 // Main logic
 func main() {
 
@@ -536,39 +538,48 @@ func main() {
 
 }
 
-func handler(signal os.Signal) {
-	if signal == syscall.SIGTERM {
-		fmt.Println("Got kill signal. ")
-		fmt.Println("Program will terminate now.")
-		os.Exit(0)
-	} else if signal == syscall.SIGINT {
-		fmt.Println("Got CTRL+C signal")
-		fmt.Println("Closing.")
-		os.Exit(0)
-	}
-}
-
-func getTime() string {
-	return time.Now().Format("2006-01-02 15:04:05")
-}
-
-func runTicker(config Config, dirStatus bool, group *sync.WaitGroup) {
-	defer group.Done()
-
-	initial(config, dirStatus)
-	fmt.Println("Interval done at: " + getTime())
-	fmt.Println("Next iteration will start after: " + config.Server.UpdateInterval)
-
-	duration, err := time.ParseDuration(config.Server.UpdateInterval)
+// Unused
+// Full regex - extract domain names (not used)
+func fullRegex(file string, filename string, out string) {
+	dat, err := os.Open(file)
 	handleErr(err)
-	tick := time.Tick(time.Duration(duration.Minutes()) * time.Minute)
+	defer dat.Close()
 
-	for range tick {
-		initial(config, dirStatus)
+	scanner := bufio.NewScanner(dat)
+	r1 := regexp.MustCompile(`(^#.*$)`)
+	r2 := regexp.MustCompile(`(^(\/.*\/)$)|(^[a-z].*$)|(?:[\w-]+\.)+[\w-]+`)
+	//re := regexp.MustCompile(`(?i)^(.*)(?:Inc\.|Incorp\.|Incorporation\.|Incorpa\.)(.*)$`)
 
-		fmt.Println("Interval done at: " + getTime())
-		fmt.Println("Next iteration will start after: " + config.Server.UpdateInterval)
+	outFile := out + "/" + filename
+	cleanFile(outFile)
+	f, err := os.OpenFile(outFile,
+		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Println(err)
 	}
+	defer f.Close()
+
+	//
+	for scanner.Scan() {
+
+		if !r1.MatchString(scanner.Text()) {
+			if _, err := f.WriteString(scanner.Text() + "\n"); err != nil {
+				log.Println(err)
+			}
+			//fmt.Println(scanner.Text())
+		}
+		if r2.MatchString(scanner.Text()) {
+			if _, err := f.WriteString(scanner.Text() + "\n"); err != nil {
+				log.Println(err)
+			}
+			//fmt.Println(scanner.Text())
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		handleErr(err)
+	}
+
 }
 
 func createServer(port int, name string) *http.Server {
@@ -584,17 +595,4 @@ func createServer(port int, name string) *http.Server {
 		Handler: mux,
 	}
 	return &server
-}
-
-func runHttpServer(port string) {
-
-	// Run server
-	fs := http.FileServer(http.Dir("./public"))
-	http.Handle("/", fs)
-
-	log.Print("Listening on : " + port)
-	err := http.ListenAndServe(":"+port, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
 }
