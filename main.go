@@ -107,6 +107,20 @@ func isFileExists(file string) bool {
 	}
 }
 
+func isDirEmpty(name string) bool {
+	f, err := os.Open(name)
+	if err != nil {
+		return false
+	}
+	defer f.Close()
+
+	_, err = f.Readdirnames(1) // Or f.Readdir(1)
+	if err == io.EOF {
+		return true
+	}
+	return false
+}
+
 // If two file is the same
 func isFileMatched(path1, path2 string) (sameSize bool, err error) {
 	f1, err := os.Stat(path1)
@@ -447,10 +461,15 @@ func initial(config Config, dirStatus bool) {
 	download(config.Lists.IpPlain, config.Server.DownloadDir+"/ip_plain")
 
 	// Cleaning Process
-
 	err := filepath.Walk(MergedDir, prepareFiles)
 	handleErr(err)
 	publishFiles(MergedDir, files)
+
+	if !isDirEmpty(config.Server.UploadDir) {
+		mergedFileName := files + "/dropped_ip.txt"
+		mergeFiles(config.Server.UploadDir, ".txt", mergedFileName)
+	}
+
 }
 
 func runTicker(config Config, dirStatus bool, group *sync.WaitGroup) {

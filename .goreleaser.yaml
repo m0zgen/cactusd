@@ -5,7 +5,7 @@ before:
   hooks:
     - go mod tidy
     - go mod download
-    - touch ls.txt
+#    - touch ls.txt
 builds:
   - env:
       - CGO_ENABLED=0
