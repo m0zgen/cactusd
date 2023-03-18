@@ -33,6 +33,8 @@ archives:
 
     files:
       - README.md
+      - config.yml
+      - public/index.html
 #gomod:
 #  proxy: true
 checksum:
