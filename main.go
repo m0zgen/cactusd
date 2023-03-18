@@ -6,6 +6,7 @@ import (
 	"fmt"
 	fileMerger "github.com/Ja7ad/goMerge"
 	"gopkg.in/yaml.v3"
+	"html/template"
 	"io"
 	"log"
 	"net/http"
@@ -496,8 +497,14 @@ func webUploadHandler(w http.ResponseWriter, r *http.Request) {
 
 func runHttpServer(port string) {
 
-	fileHandler := http.StripPrefix("/", http.FileServer(http.Dir("public")))
-	http.Handle("/", fileHandler)
+	//fileHandler := http.StripPrefix("/", http.FileServer(http.Dir("public")))
+
+	fs := http.FileServer(http.Dir("./public"))
+	http.Handle("/public/", http.StripPrefix("/public/", fs))
+
+	http.HandleFunc("/", serveTemplate)
+
+	//http.Handle("/", fileHandler)
 	http.HandleFunc("/time", timeHandler)
 	http.HandleFunc("/upload", webUploadHandler)
 
@@ -510,6 +517,57 @@ func runHttpServer(port string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+var tmplString = `    // content of index.html
+    {{define "base"}}
+    {{.var1}} is equal to {{.var2}}
+    {{end}}
+`
+
+func serveTemplate(w http.ResponseWriter, r *http.Request) {
+
+	appVersion := "0.1.1"
+	hostname, err := os.Hostname()
+	handleErr(err)
+
+	//
+	files := []string{
+		"./templates/base.html",
+		"./templates/partials/nav.html",
+		"./templates/home.html",
+	}
+
+	ts, err := template.ParseFiles(files...)
+	if err != nil {
+		log.Print(err.Error())
+		http.Error(w, "Internal Server Error", 500)
+		return
+	}
+
+	////
+	data := struct {
+		AppVersion  string
+		CurrentDate string
+		HostName    string
+	}{
+		appVersion,
+		getTime(),
+		hostname,
+	}
+
+	//err = ts.Execute(w, data)
+	//if err != nil {
+	//	http.Error(w, err.Error(), http.StatusInternalServerError)
+	//}
+	////
+
+	err = ts.ExecuteTemplate(w, "base", data)
+	if err != nil {
+		log.Print(err.Error())
+		http.Error(w, "Internal Server Error", 500)
+	}
+
 }
 
 func timeHandler(w http.ResponseWriter, r *http.Request) {
@@ -551,7 +609,7 @@ func main() {
 	//}()
 
 	go runHttpServer(config.Server.Port)
-	go runTicker(config, dirStatus, wg)
+	//go runTicker(config, dirStatus, wg)
 
 	sigchnl := make(chan os.Signal, 1)
 	signal.Notify(sigchnl)

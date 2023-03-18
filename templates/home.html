@@ -1,0 +1,18 @@
+{{define "title"}}Home on{{end}}
+
+{{define "main"}}
+<p>There's nothing to see here yet!</p>
+
+<ul>
+        <li><a href="public/files/bl.txt">bl.txt</a></li>
+        <li><a href="public/files/bl_plain.txt">bl_plain.txt</a></li>
+        <li><a href="public/files/wl.txt">wl.txt</a></li>
+        <li><a href="public/files/wl_plain.txt">wl_plain.txt</a></li>
+        <li><a href="public/files/ip_plain.txt">ip_plain.txt</a></li>
+    </ul>
+
+<p>Version: {{.AppVersion}}</p>
+<p>Host name: {{.HostName}}</p>
+<p>Server date/time: {{.CurrentDate}}</p>
+
+{{end}}
