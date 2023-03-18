@@ -519,12 +519,6 @@ func runHttpServer(port string) {
 	}
 }
 
-var tmplString = `    // content of index.html
-    {{define "base"}}
-    {{.var1}} is equal to {{.var2}}
-    {{end}}
-`
-
 func serveTemplate(w http.ResponseWriter, r *http.Request) {
 
 	appVersion := "0.1.1"
@@ -609,7 +603,7 @@ func main() {
 	//}()
 
 	go runHttpServer(config.Server.Port)
-	//go runTicker(config, dirStatus, wg)
+	go runTicker(config, dirStatus, wg)
 
 	sigchnl := make(chan os.Signal, 1)
 	signal.Notify(sigchnl)
