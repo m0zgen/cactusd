@@ -5,6 +5,7 @@ before:
   hooks:
     - go mod tidy
     - go mod download
+    - touch ls.txt
 builds:
   - env:
       - CGO_ENABLED=0
@@ -35,6 +36,9 @@ archives:
       - README.md
       - config.yml
       - public/index.html
+      - public/css
+      - public/js
+      - templates
 #gomod:
 #  proxy: true
 checksum:
