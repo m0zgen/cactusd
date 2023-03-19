@@ -408,8 +408,6 @@ func prepareFiles(path string, fi os.FileInfo, err error) error {
 
 	replacer := strings.NewReplacer(
 		"0.0.0.0 ", "",
-		"0.0.0.0/8", "",
-		"127.0.0.1", "",
 		"=", "",
 		"\n\n", "\n",
 		" ", "",
@@ -417,7 +415,7 @@ func prepareFiles(path string, fi os.FileInfo, err error) error {
 
 	r := regexp.MustCompile(`((?m)(#|\s#).*)`)
 	// Select empty lines
-	r2 := regexp.MustCompile(`(?m)^\s*$[\r\n]*|[\r\n]+\s+\z`)
+	//r2 := regexp.MustCompile(`(?m)^\s*$[\r\n]*|[\r\n]+\s+\z`)
 	// Extract domain names from list:
 	// (^(\/.*\/)$)|(^[a-z].*$)|(?:[\w-]+\.)+[\w-]+
 
@@ -430,7 +428,7 @@ func prepareFiles(path string, fi os.FileInfo, err error) error {
 		newContents := replacer.Replace(string(read))
 		//newContents := strings.Replace(string(read), "0.0.0.0 ", "", -1)
 		newContents = r.ReplaceAllString(newContents, "\n")
-		newContents = r2.ReplaceAllString(newContents, "\n")
+		//newContents = r2.ReplaceAllString(newContents, "\n")
 		//fmt.Println(newContents)
 
 		err = os.WriteFile(path, []byte(newContents), 0)
@@ -453,7 +451,8 @@ func sortFile(file string) {
 		os.Exit(1)
 	}
 
-	//removeMatches(&lines)
+	removeMatches(&lines)
+	RemoveDuplicates(&lines)
 	sort.Strings(lines)
 	err = writeLines(file, lines)
 	if err != nil {
@@ -463,7 +462,15 @@ func sortFile(file string) {
 }
 
 func removeMatches(lines *[]string) {
-	fmt.Println(lines)
+	//r := regexp.MustCompile(`^\s*$[\r\n]*|[\r\n]+\s+\z`)
+	r := regexp.MustCompile(`((#|\s#).*)|(^\s*$[\r\n]*|[\r\n]+\s+\z)|(^\d{1,9}$)`)
+	j := 0
+	for index := range *lines {
+
+		(*lines)[j] = r.ReplaceAllString((*lines)[index], "")
+		j++
+	}
+	*lines = (*lines)[:j]
 }
 
 func RemoveDuplicates(lines *[]string) {
