@@ -452,13 +452,18 @@ func sortFile(file string) {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+
+	//removeMatches(&lines)
 	sort.Strings(lines)
-	RemoveDuplicates(&lines)
 	err = writeLines(file, lines)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+}
+
+func removeMatches(lines *[]string) {
+	fmt.Println(lines)
 }
 
 func RemoveDuplicates(lines *[]string) {
