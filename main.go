@@ -463,6 +463,8 @@ func initial(config Config, dirStatus bool) {
 	// Cleaning Process
 	err := filepath.Walk(MergedDir, prepareFiles)
 	handleErr(err)
+
+	// TODO: Remove duplicate lines
 	publishFiles(MergedDir, files)
 
 	if !isDirEmpty(config.Server.UploadDir) {
