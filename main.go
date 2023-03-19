@@ -71,7 +71,8 @@ func getTime() string {
 // Error handler
 func handleErr(e error) {
 	if e != nil {
-		panic(e)
+		//panic(e)
+		log.Println(e)
 	}
 }
 
@@ -443,6 +444,7 @@ func prepareFiles(path string, fi os.FileInfo, err error) error {
 	return nil
 }
 
+// Sort and remove duplicates from files
 func sortFile(file string) {
 
 	lines, err := readLines(file)
@@ -451,11 +453,25 @@ func sortFile(file string) {
 		os.Exit(1)
 	}
 	sort.Strings(lines)
+	RemoveDuplicates(&lines)
 	err = writeLines(file, lines)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+}
+
+func RemoveDuplicates(lines *[]string) {
+	found := make(map[string]bool)
+	j := 0
+	for i, x := range *lines {
+		if !found[x] {
+			found[x] = true
+			(*lines)[j] = (*lines)[i]
+			j++
+		}
+	}
+	*lines = (*lines)[:j]
 }
 
 // Process merged file
@@ -485,9 +501,7 @@ func publishFiles(mergeddir string, out string) {
 			return
 		}
 
-		///
 		sortFile(f)
-		///
 
 		fmt.Println("Copy files from:" + f + " to: " + out + "/" + file.Name())
 		err = copyFile(f, out+"/"+file.Name(), 20)
@@ -503,13 +517,13 @@ func publishFiles(mergeddir string, out string) {
 func initial(config Config, dirStatus bool) {
 
 	// Folder name for published file, public sub-catalog
-	var files string = config.Server.PublicDir + "/files"
+	var publishFilesDir string = config.Server.PublicDir + "/files"
 	// Process catalogs & download
 	//fmt.Println(config.Server.Port)
 	createDir(MergedDir, dirStatus)
 	createDir(config.Server.UploadDir, dirStatus)
 	createDir(config.Server.PublicDir, dirStatus)
-	createDir(files, dirStatus)
+	createDir(publishFilesDir, dirStatus)
 
 	// Download files
 	createDir(config.Server.DownloadDir+"/bl", dirStatus)
@@ -530,15 +544,13 @@ func initial(config Config, dirStatus bool) {
 	// Cleaning Process
 	err := filepath.Walk(MergedDir, prepareFiles)
 	handleErr(err)
-
-	// TODO: Remove duplicate lines
-	publishFiles(MergedDir, files)
-
+	publishFiles(MergedDir, publishFilesDir)
+	//
 	if !isDirEmpty(config.Server.UploadDir) {
 		err := filepath.Walk(config.Server.UploadDir, prepareFiles)
 		handleErr(err)
 
-		mergedFileName := files + "/dropped_ip.txt"
+		mergedFileName := publishFilesDir + "/dropped_ip.txt"
 		mergeFiles(config.Server.UploadDir, ".txt", mergedFileName)
 		sortFile(mergedFileName)
 	}
