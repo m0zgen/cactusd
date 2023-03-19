@@ -463,7 +463,7 @@ func sortFile(file string) {
 
 func removeMatches(lines *[]string) {
 	//r := regexp.MustCompile(`^\s*$[\r\n]*|[\r\n]+\s+\z`)
-	r := regexp.MustCompile(`((#|\s#).*)|(^\s*$[\r\n]*|[\r\n]+\s+\z)|(^\d{1,9}$)`)
+	r := regexp.MustCompile(`((#|\s#).*)|(^\s*$[\r\n]*|[\r\n]+\s+\z)|(^\d{0,9}$)`)
 	j := 0
 	for index := range *lines {
 
