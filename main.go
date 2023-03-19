@@ -15,6 +15,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 	"sync"
 	"syscall"
@@ -287,6 +288,7 @@ func downloadFile(url string, dest string) error {
 	defer out.Close()
 
 	// Get the data
+	// TODO: detect 404 pages or 200 responce
 	fmt.Printf("Downloading file %s\n", filepath)
 	resp, err := http.Get(url)
 
@@ -341,6 +343,50 @@ func cleanFile(file string) {
 	}
 }
 
+// Thx: https://stackoverflow.com/questions/7424340/read-in-lines-in-a-text-file-sort-then-overwrite-file/7425283#7425283
+func readLines(file string) (lines []string, err error) {
+	f, err := os.Open(file)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	r := bufio.NewReader(f)
+	for {
+		const delim = '\n'
+		line, err := r.ReadString(delim)
+		if err == nil || len(line) > 0 {
+			if err != nil {
+				line += string(delim)
+			}
+			lines = append(lines, line)
+		}
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			return nil, err
+		}
+	}
+	return lines, nil
+}
+
+func writeLines(file string, lines []string) error {
+	f, err := os.Create(file)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	w := bufio.NewWriter(f)
+	defer w.Flush()
+	for _, line := range lines {
+		_, err := w.WriteString(line)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // Thx: https://gist.github.com/m0zgen/af44035db3102d08effc2d38e56c01f3
 func prepareFiles(path string, fi os.FileInfo, err error) error {
 
@@ -368,7 +414,7 @@ func prepareFiles(path string, fi os.FileInfo, err error) error {
 		" ", "",
 	)
 
-	r := regexp.MustCompile(`((?m)(^#|\s#).*)`)
+	r := regexp.MustCompile(`((?m)(#|\s#).*)`)
 	// Select empty lines
 	r2 := regexp.MustCompile(`(?m)^\s*$[\r\n]*|[\r\n]+\s+\z`)
 	// Extract domain names from list:
@@ -397,6 +443,21 @@ func prepareFiles(path string, fi os.FileInfo, err error) error {
 	return nil
 }
 
+func sortFile(file string) {
+
+	lines, err := readLines(file)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	sort.Strings(lines)
+	err = writeLines(file, lines)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+}
+
 // Process merged file
 func publishFiles(mergeddir string, out string) {
 	//// Process merged files
@@ -407,6 +468,7 @@ func publishFiles(mergeddir string, out string) {
 
 	for _, file := range files {
 		fmt.Println(file.Name(), file.IsDir())
+
 		var plain bool = strings.Contains(file.Name(), "plain")
 		var f string = mergeddir + "/" + file.Name()
 
@@ -422,6 +484,11 @@ func publishFiles(mergeddir string, out string) {
 			fmt.Printf("Invalid buffer size: %q\n", err)
 			return
 		}
+
+		///
+		sortFile(f)
+		///
+
 		fmt.Println("Copy files from:" + f + " to: " + out + "/" + file.Name())
 		err = copyFile(f, out+"/"+file.Name(), 20)
 		if err != nil {
@@ -468,8 +535,12 @@ func initial(config Config, dirStatus bool) {
 	publishFiles(MergedDir, files)
 
 	if !isDirEmpty(config.Server.UploadDir) {
+		err := filepath.Walk(config.Server.UploadDir, prepareFiles)
+		handleErr(err)
+
 		mergedFileName := files + "/dropped_ip.txt"
 		mergeFiles(config.Server.UploadDir, ".txt", mergedFileName)
+		sortFile(mergedFileName)
 	}
 
 }
@@ -487,7 +558,6 @@ func runTicker(config Config, dirStatus bool, group *sync.WaitGroup) {
 
 	for range tick {
 		initial(config, dirStatus)
-
 		fmt.Println("Interval done at: " + getTime())
 		fmt.Println("Next iteration will start after: " + config.Server.UpdateInterval)
 	}
