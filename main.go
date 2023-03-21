@@ -408,12 +408,14 @@ func prepareFiles(path string, fi os.FileInfo, err error) error {
 
 	replacer := strings.NewReplacer(
 		"0.0.0.0 ", "",
-		"=", "",
+		"127.0.0.1 ", "",
 		"\n\n", "\n",
+		"=", "",
 		" ", "",
 	)
 
 	r := regexp.MustCompile(`((?m)(#|\s#).*)`)
+
 	// Select empty lines
 	//r2 := regexp.MustCompile(`(?m)^\s*$[\r\n]*|[\r\n]+\s+\z`)
 	// Extract domain names from list:
@@ -467,7 +469,7 @@ func removeMatches(lines *[]string) {
 	j := 0
 	for index := range *lines {
 
-		(*lines)[j] = r.ReplaceAllString((*lines)[index], "")
+		(*lines)[j] = r.ReplaceAllString((*lines)[index], "\n")
 		j++
 	}
 	*lines = (*lines)[:j]
