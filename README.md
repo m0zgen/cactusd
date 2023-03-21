@@ -6,6 +6,7 @@ Main tasks:
 * JSON config
 * Routine items
 * Scheduling or Timing intervals
+* Move all functionality from [BLD-Server](https://github.com/m0zgen/bld-server)
 
 Server for download, upload and then clean, merge and publish received files through integrated 
 web server.
