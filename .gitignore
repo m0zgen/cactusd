@@ -2,9 +2,9 @@
 cactusd
 
 # Server works dirs
-public/files
 upload
 download
+public/files
 
 # Temps
 tmp
@@ -22,4 +22,6 @@ config/prod*
 .idea
 .vscode
 
+# Builds
 dist/
+addits/builds
