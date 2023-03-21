@@ -4,21 +4,13 @@
 # Envs
 # ---------------------------------------------------\
 PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin
-SCRIPT_PATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
+SCRIPT_PATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd); cd $SCRIPT_PATH; cd ..
 
 DEST="/opt/cactusd/"
 
 BUILD_PATH="$SCRIPT_PATH/builds"
 BINARY_NAME="cactusd"
 
-# Build
-cd $SCRIPT_PATH; cd ..
-
-if [ ! -d "$BUILD_PATH" ]; then
-    mkdir -p $BUILD_PATH
-fi
-
-# Functions
 # Help information
 usage() {
 
@@ -30,29 +22,40 @@ usage() {
 
 }
 
+# Date for backup file name
 timestamp() {
     echo `date +%d-%m-%Y_%H-%M-%S`
 }
 
+checkingDirs() {
+
+    echo "Checking $BUILD_PATH .."
+    if [[ ! -d $BUILD_PATH/prev ]]; then
+        mkdir -p $BUILD_PATH/prev
+    fi
+}
+
+# Backup previous binary file
 backupBinary() {
+
     if [[ -f "$BUILD_PATH/$BINARY_NAME" ]]; then
         bkp_name="cactusd-$(timestamp)"
         tar -zcvf $bkp_name.tar.gz $BUILD_PATH/$BINARY_NAME
         mv $bkp_name.tar.gz $BUILD_PATH/prev/
+        echo "Previous release saved to $BUILD_PATH/prev/$bkp_name.tar.gz"
     fi
 }
 
+# Build current code to binary
 buildBLD() {
 
-    echo "Building Cactusd release.. to $BUILD_PATH"
+    checkingDirs
     backupBinary
 
-    if [[ ! -d $SCRIPT_PATH/builds ]]; then
-        mkdir $SCRIPT_PATH/builds
-    fi
-
+    echo "Building Cactusd release..."
     env GOOS=linux GOARCH=amd64 go build -o $BUILD_PATH
 }
+
 
 deployCactusd() {
 
@@ -64,6 +67,7 @@ deployCactusd() {
     local cmdStart="sudo systemctl start cactusd"
 
     ssh -ttt $1 "sudo systemctl stop cactusd"
+
     scp $SCRIPT_PATH/builds/cactusd $1:$DEST
     ssh -ttt $1 "sudo systemctl start cactusd"
 
