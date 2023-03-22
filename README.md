@@ -30,6 +30,17 @@ Conditionally the `lists` are divided into several categories:
 need to clean and merge in solid file fo reducing size, remote server requests
 * `bl_plain`, `wl_plain`, `ip_plain` - lists juts merging and clean empty spaces and lines
 
+If you not need some list category, like as `wl_plain` or `ip_plain` just pass `none` parameter to list category.
+
+Example:
+```yaml
+...
+  wl_plain:
+    - none
+  ip_plain:
+    - none
+```
+
 Every category will merge and publish in finally in `publish/files` catalog as solid files:
 * `public/files/bl.txt`
 * `public/files/wl.txt`
@@ -40,8 +51,19 @@ Every category will merge and publish in finally in `publish/files` catalog as s
 
 ## Run Cactusd
 
+From terminal:
+
 ```shell
 ./cactusd -config config.yml
+```
+
+From `systemd`:
+
+```shell
+...
+#
+ExecStart=/path/to/cactusd --config config-prod.yml
+...
 ```
 
 
