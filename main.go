@@ -636,12 +636,30 @@ func runHttpServer(port string) {
 	}
 }
 
+//type PublicFiles
+
+func listPublicFilesDir(target string) []string {
+	files, err := os.ReadDir(target)
+	//var m map[string]string
+	var PublicFiles []string
+	if err != nil {
+		handleErr(err)
+	}
+
+	for _, file := range files {
+		//fmt.Println(file.Name(), file.IsDir())
+		//m["file"] = file.Name()
+		PublicFiles = append(PublicFiles, file.Name())
+	}
+	return PublicFiles
+}
+
 func serveTemplate(w http.ResponseWriter, r *http.Request) {
 
 	appVersion := "0.1.6"
 	hostname, err := os.Hostname()
 	handleErr(err)
-
+	publicFiles := listPublicFilesDir("./public/files/")
 	//
 	files := []string{
 		"./templates/base.html",
@@ -661,10 +679,12 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		AppVersion  string
 		CurrentDate string
 		HostName    string
+		PublicFiles []string
 	}{
 		appVersion,
 		getTime(),
 		hostname,
+		publicFiles,
 	}
 
 	//err = ts.Execute(w, data)

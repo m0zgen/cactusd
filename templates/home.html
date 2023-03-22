@@ -4,23 +4,16 @@
 <div class="columns is-multiline">
     <div class="column is-8-tablet has-text-centered">
         <p>Already files to download:</p>
+
         <ul class="is-flex is-flex-wrap-wrap is-align-items-center is-justify-content-center">
+            {{range $i, $a := .PublicFiles}}
             <li class="mr-4">
-                <a href="public/files/bl.txt">bl.txt</a>
+                <a href="public/files/{{$a}}">{{$a}}</a>
             </li>
-            <li class="mr-4">
-                <a href="public/files/bl_plain.txt">bl_plain.txt</a>
-            </li>
-            <li class="mr-4">
-                <a href="public/files/wl.txt">wl.txt</a>
-            </li>
-            <li class="mr-4">
-                <a href="public/files/wl_plain.txt">wl_plain.txt</a>
-            </li>
-            <li class="mr-4">
-                <a href="public/files/ip_plain.txt">ip_plain.txt</a>
-            </li>
+            {{end}}
         </ul>
+
+
     </div>
     <div class="column is-4-tablet">
         <ul class="is-flex is-flex-wrap-wrap is-align-items-baseline is-justify-content-center">
