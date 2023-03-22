@@ -1,18 +1,36 @@
 {{define "title"}}Home on{{end}}
 
 {{define "main"}}
-<p>Already files to download:</p>
-
-<ul>
-        <li><a href="public/files/bl.txt">bl.txt</a></li>
-        <li><a href="public/files/bl_plain.txt">bl_plain.txt</a></li>
-        <li><a href="public/files/wl.txt">wl.txt</a></li>
-        <li><a href="public/files/wl_plain.txt">wl_plain.txt</a></li>
-        <li><a href="public/files/ip_plain.txt">ip_plain.txt</a></li>
-    </ul>
-
-<p>Version: {{.AppVersion}}</p>
-<p>Host name: {{.HostName}}</p>
-<p>Server date/time: {{.CurrentDate}}</p>
-
+<div class="columns is-multiline">
+    <div class="column is-8-tablet has-text-centered">
+        <p>Already files to download:</p>
+        <ul class="is-flex is-flex-wrap-wrap is-align-items-center is-justify-content-center">
+            <li class="mr-4">
+                <a href="public/files/bl.txt">bl.txt</a>
+            </li>
+            <li class="mr-4">
+                <a href="public/files/bl_plain.txt">bl_plain.txt</a>
+            </li>
+            <li class="mr-4">
+                <a href="public/files/wl.txt">wl.txt</a>
+            </li>
+            <li class="mr-4">
+                <a href="public/files/wl_plain.txt">wl_plain.txt</a>
+            </li>
+            <li class="mr-4">
+                <a href="public/files/ip_plain.txt">ip_plain.txt</a>
+            </li>
+        </ul>
+    </div>
+    <div class="column is-4-tablet">
+        <ul class="is-flex is-flex-wrap-wrap is-align-items-baseline is-justify-content-center">
+            <li class="mr-4">
+                Host name: {{.HostName}}
+            </li>
+            <li class="mr-4">
+                Server date/time: {{.CurrentDate}}
+            </li>
+        </ul>
+    </div>
+</div>
 {{end}}

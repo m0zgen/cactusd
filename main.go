@@ -638,7 +638,7 @@ func runHttpServer(port string) {
 
 func serveTemplate(w http.ResponseWriter, r *http.Request) {
 
-	appVersion := "0.1.1"
+	appVersion := "0.1.6"
 	hostname, err := os.Hostname()
 	handleErr(err)
 

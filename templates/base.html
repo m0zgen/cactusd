@@ -1,21 +1,58 @@
 {{define "base"}}
-<!doctype html>
-<html lang='en'>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset='utf-8'>
   <title>{{template "title" .}} - Cactus Server</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+  <script src="https://lab.sys-adm.in/js/main.js"></script>
+  <link rel="icon" type="image/png" sizes="32x32" href="shuffle-for-bulma.png">
 </head>
 <body>
+<div class="has-background-light">
 
-<header>
-  <h1><a href='/'>Cactus Server</a></h1>
-</header>
-  {{template "nav" .}}
-<main>
-  {{template "main" .}}
-</main>
+  <section class="section pt-0 pb-6 is-relative has-background-light">
+    {{template "nav" .}}
+    <div class="container pt-5">
+      <div class="columns is-multiline is-centered">
+        <div class="column is-6 mx-auto mb-5 has-text-centered">
+              <span class="has-text-grey-dark">
+                Develop your skill and environment
+              </span>
+          <h2 class="mt-2 mb-6 is-size-1 is-size-3-mobile has-text-weight-bold">
+            Cactusd Server v.{{.AppVersion}}
+          </h2>
 
-<footer>Powered by <a href='https://lab.sys-adm.in/'>Sys-Admin Lab</a></footer>
+        </div>
+      </div>
+    </div>
+  </section>
+
+    {{template "main" .}}
+
+  <footer class="section">
+
+    <div class="pt-5" style="border-top: 1px solid #dee2e6;"></div>
+    <div class="container">
+      <div class="is-flex-tablet is-justify-content-between is-align-items-center">
+        <p class="has-text-centered">
+          Powered by <a href='https://lab.sys-adm.in/'>Sys-Admin Lab</a>,
+          S-A BLD Cactusd Project © 2022 - <span id="cdate"></span><script>document.getElementById("cdate").innerHTML = (new Date().getFullYear());</script></p>
+        <div class="py-2 is-hidden-tablet"></div>
+        <div class="ml-auto">
+          <a class="mr-4 is-inline-block" href="https://github.com/m0zgen/cactusd" target="_blank">
+            <img src="bulma-plain-assets/socials/github.svg" alt="">
+          </a>
+          <!--              <a class="is-inline-block" href="#">-->
+          <!--                <img src="bulma-plain-assets/socials/linkedin.svg" alt="">-->
+          <!--              </a>-->
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>
 </body>
 </html>
 {{end}}
