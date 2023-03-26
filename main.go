@@ -10,6 +10,7 @@ import (
 	"io"
 	"log"
 	"math"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -17,6 +18,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -43,6 +45,25 @@ type Config struct {
 		WlPlain []string `yaml:"wl_plain"`
 		IpPlain []string `yaml:"ip_plain"`
 	} `yaml:"lists"`
+}
+
+type Cfg struct {
+	serverConfig map[string]Server
+	listsConfig  map[string]interface{}
+	pingConfig   map[string]interface{}
+}
+
+type Server struct {
+	Port           string
+	UpdateInterval string
+	DownloadDir    string
+	UploadDir      string
+	PublicDir      string
+}
+
+type PingHost struct {
+	name string
+	port int
 }
 
 // Config file loader
@@ -741,6 +762,17 @@ func timeHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, time.Now().Format("02 Jan 2006 15:04:05 MST"))
 }
 
+func pingHost(host string, p int) {
+	port := strconv.Itoa(p)
+	timeout := time.Duration(1 * time.Second)
+	_, err := net.DialTimeout("tcp", host+":"+port, timeout)
+	if err != nil {
+		fmt.Printf("%s %s %s\n", host, "not responding", err.Error())
+	} else {
+		fmt.Printf("%s %s %s\n", host, "responding on port:", port)
+	}
+}
+
 // Main logic
 func main() {
 
@@ -761,10 +793,37 @@ func main() {
 	config, _ := loadConfig(CONFIG, dirStatus)
 	configData := loadUnmarshalConfig(CONFIG, dirStatus)
 
-	log.Println(configData)
-	for k, v := range configData {
-		log.Println(k, ":", v)
+	//serverConfig := configData["server"].(map[string]interface{})
+	//listsConfig := configData["lists"].(map[string]interface{})
+	//pingConfig := configData["ping"].(map[string]interface{})
+	pingConfig := configData["ping"].([]interface{})
+	var p PingHost
+	for _, v := range pingConfig {
+		//log.Println(k, ":", v)
+		targets := v.(map[string]interface{})
+		for _, param := range targets {
+			//fmt.Println(param)
+			h := param.(map[string]interface{})
+			for k, host := range h {
+				switch k {
+				case "name":
+					p.name = host.(string)
+				case "port":
+					p.port = host.(int)
+				}
+
+			}
+
+		}
+		//fmt.Println("Target: ", p.name)
+		pingHost(p.name, p.port)
 	}
+
+	//log.Println(configData)
+	//for k, v := range configData {
+	//	log.Println(k, ":", v)
+	//
+	//}
 
 	//fmt.Println(reflect.TypeOf(config))
 
