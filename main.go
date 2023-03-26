@@ -9,6 +9,7 @@ import (
 	"html/template"
 	"io"
 	"log"
+	"math"
 	"net/http"
 	"net/url"
 	"os"
@@ -636,11 +637,22 @@ func runHttpServer(port string) {
 	}
 }
 
-//type PublicFiles
+func prettyByteSize(b int) string {
+	bf := float64(b)
+	for _, unit := range []string{"", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"} {
+		if math.Abs(bf) < 1024.0 {
+			return fmt.Sprintf("%3.1f%sB", bf, unit)
+		}
+		bf /= 1024.0
+	}
+	return fmt.Sprintf("%.1fYiB", bf)
+}
 
-func listPublicFilesDir(target string) []string {
+// type PublicFiles
+func listPublicFilesDir(target string) map[string]string {
 	files, err := os.ReadDir(target)
-	//var m map[string]string
+	m := make(map[string]string)
+	var sz string
 	var PublicFiles []string
 	if err != nil {
 		handleErr(err)
@@ -648,10 +660,16 @@ func listPublicFilesDir(target string) []string {
 
 	for _, file := range files {
 		//fmt.Println(file.Name(), file.IsDir())
-		//m["file"] = file.Name()
-		PublicFiles = append(PublicFiles, file.Name())
+		//fmt.Println(target + file.Name())
+		i, err := file.Info()
+		handleErr(err)
+		sz = prettyByteSize(int(i.Size()))
+		m[file.Name()] = sz
+		PublicFiles = append(PublicFiles, file.Name(), sz)
 	}
-	return PublicFiles
+
+	//return PublicFiles
+	return m
 }
 
 func serveTemplate(w http.ResponseWriter, r *http.Request) {
@@ -679,7 +697,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		AppVersion  string
 		CurrentDate string
 		HostName    string
-		PublicFiles []string
+		PublicFiles map[string]string
 	}{
 		appVersion,
 		getTime(),

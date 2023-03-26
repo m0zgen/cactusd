@@ -6,9 +6,9 @@
         <p>Already files to download:</p>
 
         <ul class="is-flex is-flex-wrap-wrap is-align-items-center is-justify-content-center">
-            {{range $i, $a := .PublicFiles}}
+            {{range $f, $s := .PublicFiles}}
             <li class="mr-4">
-                <a href="public/files/{{$a}}">{{$a}}</a>
+                <p><a href="public/files/{{$f}}">{{$f}}</a> <br>{{$s}}</p>
             </li>
             {{end}}
         </ul>
