@@ -64,6 +64,23 @@ func loadConfig(filename string, dirStatus bool) (Config, error) {
 	return config, err
 }
 
+func loadUnmarshalConfig(filename string, dirStatus bool) map[string]interface{} {
+
+	// Check go run or run binary
+	if !dirStatus {
+		filename = updatePath(filename)
+	}
+	configFile, err := os.ReadFile(filename)
+	//fmt.Println(filename)
+	handleErr(err)
+
+	var data map[string]interface{}
+	err = yaml.Unmarshal(configFile, &data)
+	handleErr(err)
+
+	return data
+}
+
 // func getDatetime() time.Time
 func getTime() string {
 	return time.Now().Format("2006-01-02 15:04:05")
@@ -637,6 +654,7 @@ func runHttpServer(port string) {
 	}
 }
 
+// Thx: https://stackoverflow.com/questions/1094841/get-human-readable-version-of-file-size/1094933#1094933
 func prettyByteSize(b int) string {
 	bf := float64(b)
 	for _, unit := range []string{"", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"} {
@@ -741,6 +759,13 @@ func main() {
 	}
 
 	config, _ := loadConfig(CONFIG, dirStatus)
+	configData := loadUnmarshalConfig(CONFIG, dirStatus)
+
+	log.Println(configData)
+	for k, v := range configData {
+		log.Println(k, ":", v)
+	}
+
 	//fmt.Println(reflect.TypeOf(config))
 
 	// Routines start

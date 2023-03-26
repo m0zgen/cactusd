@@ -9,6 +9,11 @@ server:
   # Web server public catalog
   public_dir: public
 
+ping:
+  host:
+    - google.com
+    - 443
+
 lists:
   bl:
     # - TODO: Download files with same names?
