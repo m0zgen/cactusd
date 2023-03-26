@@ -12,9 +12,21 @@
             </li>
             {{end}}
         </ul>
-
+        <br>
+        <p>Ping status:</p>
+        <ul class="is-flex is-flex-wrap-wrap is-align-items-center is-justify-content-center">
+            {{range $h, $s := .PingStatus}}
+            <li class="mr-4">
+                <p>{{$h}}<br>{{$s}}</p>
+            </li>
+            {{end}}
+        </ul>
 
     </div>
+
+
+
+
     <div class="column is-4-tablet">
         <ul class="is-flex is-flex-wrap-wrap is-align-items-baseline is-justify-content-center">
             <li class="mr-4">

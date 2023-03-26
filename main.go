@@ -25,6 +25,9 @@ import (
 	"time"
 )
 
+var CONFIG string
+var hostsPingStat = make(map[string]string)
+
 const MergedDir string = "merged"
 
 var BufferSize int64
@@ -614,6 +617,7 @@ func runTicker(config Config, dirStatus bool, group *sync.WaitGroup) {
 	defer group.Done()
 
 	initial(config, dirStatus)
+	callPinger()
 	fmt.Println("Interval done at: " + getTime())
 	fmt.Println("Next iteration will start after: " + config.Server.UpdateInterval)
 
@@ -623,6 +627,7 @@ func runTicker(config Config, dirStatus bool, group *sync.WaitGroup) {
 
 	for range tick {
 		initial(config, dirStatus)
+		callPinger()
 		fmt.Println("Interval done at: " + getTime())
 		fmt.Println("Next iteration will start after: " + config.Server.UpdateInterval)
 	}
@@ -717,6 +722,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 	hostname, err := os.Hostname()
 	handleErr(err)
 	publicFiles := listPublicFilesDir("./public/files/")
+
 	//
 	files := []string{
 		"./templates/base.html",
@@ -737,11 +743,13 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		CurrentDate string
 		HostName    string
 		PublicFiles map[string]string
+		PingStatus  map[string]string
 	}{
 		appVersion,
 		getTime(),
 		hostname,
 		publicFiles,
+		hostsPingStat,
 	}
 
 	//err = ts.Execute(w, data)
@@ -768,16 +776,21 @@ func pingHost(host string, p int) {
 	_, err := net.DialTimeout("tcp", host+":"+port, timeout)
 	if err != nil {
 		fmt.Printf("%s %s %s\n", host, "not responding", err.Error())
+		hostsPingStat[host+" ("+port+")"] = "Not response"
+		//return host + " (" + port + ")", false
 	} else {
 		fmt.Printf("%s %s %s\n", host, "responding on port:", port)
+		hostsPingStat[host+" ("+port+")"] = "Ok"
+		//return host + " (" + port + ")", true
 	}
+
 }
 
 // Main logic
 func main() {
 
 	// Get config and determine location
-	var CONFIG string
+
 	var dirStatus bool = strings.Contains(getWorkDir(), ".")
 	var wg = new(sync.WaitGroup)
 	wg.Add(4)
@@ -791,33 +804,9 @@ func main() {
 	}
 
 	config, _ := loadConfig(CONFIG, dirStatus)
-	configData := loadUnmarshalConfig(CONFIG, dirStatus)
 
 	//serverConfig := configData["server"].(map[string]interface{})
 	//listsConfig := configData["lists"].(map[string]interface{})
-	//pingConfig := configData["ping"].(map[string]interface{})
-	pingConfig := configData["ping"].([]interface{})
-	var p PingHost
-	for _, v := range pingConfig {
-		//log.Println(k, ":", v)
-		targets := v.(map[string]interface{})
-		for _, param := range targets {
-			//fmt.Println(param)
-			h := param.(map[string]interface{})
-			for k, host := range h {
-				switch k {
-				case "name":
-					p.name = host.(string)
-				case "port":
-					p.port = host.(int)
-				}
-
-			}
-
-		}
-		//fmt.Println("Target: ", p.name)
-		pingHost(p.name, p.port)
-	}
 
 	//log.Println(configData)
 	//for k, v := range configData {
@@ -862,6 +851,37 @@ func main() {
 
 	wg.Wait()
 	// Routines end
+
+}
+
+// Testing
+func callPinger() {
+
+	var dirStatus bool = strings.Contains(getWorkDir(), ".")
+
+	configData := loadUnmarshalConfig(CONFIG, dirStatus)
+	pingConfig := configData["ping"].([]interface{})
+	var p PingHost
+	for _, v := range pingConfig {
+		//log.Println(k, ":", v)
+		targets := v.(map[string]interface{})
+		for _, param := range targets {
+			//fmt.Println(param)
+			hosts := param.(map[string]interface{})
+			for options, host := range hosts {
+				switch options {
+				case "name":
+					p.name = host.(string)
+				case "port":
+					p.port = host.(int)
+				}
+
+			}
+
+		}
+		//fmt.Println("Target: ", p.name)
+		pingHost(p.name, p.port)
+	}
 
 }
 
