@@ -720,7 +720,7 @@ func listPublicFilesDir(target string) map[string]string {
 
 func serveTemplate(w http.ResponseWriter, r *http.Request) {
 
-	appVersion := "0.1.6"
+	appVersion := "0.1.7"
 	hostname, err := os.Hostname()
 	handleErr(err)
 	publicFiles := listPublicFilesDir("./public/files/")
