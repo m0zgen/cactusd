@@ -50,12 +50,14 @@ type Config struct {
 	} `yaml:"lists"`
 }
 
+// Cfg Testing in future
 type Cfg struct {
 	serverConfig map[string]Server
 	listsConfig  map[string]interface{}
 	pingConfig   map[string]interface{}
 }
 
+// Server Testing in future
 type Server struct {
 	Port           string
 	UpdateInterval string
@@ -772,7 +774,7 @@ func timeHandler(w http.ResponseWriter, r *http.Request) {
 
 func pingHost(host string, p int) {
 	port := strconv.Itoa(p)
-	timeout := time.Duration(1 * time.Second)
+	timeout := time.Duration(2 * time.Second)
 	_, err := net.DialTimeout("tcp", host+":"+port, timeout)
 	if err != nil {
 		fmt.Printf("%s %s %s\n", host, "not responding", err.Error())

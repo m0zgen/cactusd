@@ -8,7 +8,13 @@ server:
   upload_dir: upload
   # Web server public catalog
   public_dir: public
+  # Ping interval (TODO)
+  ping_interval: 5m
+  # Ping timeout (TODO)
+  ping_timeout: 2s
 
+# Target hosts for ping
+# IP or DN with port
 ping:
   - host:
       name: 1.1.1.1
