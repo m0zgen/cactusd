@@ -305,9 +305,9 @@ func mergeFiles(path string, ext string, dest string) {
 
 // URL file downloader
 func downloadFile(url string, dest string) error {
-	var postfix string = "_prev"
-	var filename string = getFilenameFromUrl(url)
-	var filepath string = filepath.Join(dest, filename)
+	var postfix = "_prev"
+	var filename = getFilenameFromUrl(url)
+	var filepath = filepath.Join(dest, filename)
 	if !strings.Contains(filename, ".txt") {
 		filepath = filepath + ".txt"
 	}
@@ -543,8 +543,8 @@ func publishFiles(mergeddir string, out string) {
 	for _, file := range files {
 		fmt.Println(file.Name(), file.IsDir())
 
-		var plain bool = strings.Contains(file.Name(), "plain")
-		var f string = mergeddir + "/" + file.Name()
+		var plain = strings.Contains(file.Name(), "plain")
+		var f = mergeddir + "/" + file.Name()
 
 		if plain {
 			fmt.Println("Plain recurse for - " + f)
@@ -575,7 +575,7 @@ func publishFiles(mergeddir string, out string) {
 func initial(config Config, dirStatus bool) {
 
 	// Folder name for published file, public sub-catalog
-	var publishFilesDir string = config.Server.PublicDir + "/files"
+	var publishFilesDir = config.Server.PublicDir + "/files"
 	// Process catalogs & download
 	//fmt.Println(config.Server.Port)
 	createDir(MergedDir, dirStatus)
@@ -793,7 +793,7 @@ func main() {
 
 	// Get config and determine location
 
-	var dirStatus bool = strings.Contains(getWorkDir(), ".")
+	var dirStatus = strings.Contains(getWorkDir(), ".")
 	var wg = new(sync.WaitGroup)
 	wg.Add(4)
 
@@ -859,7 +859,7 @@ func main() {
 // Testing
 func callPinger() {
 
-	var dirStatus bool = strings.Contains(getWorkDir(), ".")
+	var dirStatus = strings.Contains(getWorkDir(), ".")
 
 	configData := loadUnmarshalConfig(CONFIG, dirStatus)
 	pingConfig := configData["ping"].([]interface{})
