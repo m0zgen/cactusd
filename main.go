@@ -2,53 +2,31 @@ package main
 
 import (
 	"bufio"
+	conf "cactusd/util"
+	util "cactusd/util"
 	"flag"
 	"fmt"
 	fileMerger "github.com/Ja7ad/goMerge"
-	"gopkg.in/yaml.v3"
 	"html/template"
 	"io"
 	"log"
 	"math"
-	"net"
 	"net/http"
-	"net/url"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 )
 
-var CONFIG string
-var hostsPingStat = make(map[string]string)
+var HostsPingStat = conf.HostsPingStat
 
-const MergedDir string = "merged"
+const MergedDir = conf.MergedDir
 
 var BufferSize int64
-
-// Config file structure
-type Config struct {
-	Server struct {
-		Port           string `yaml:"port"`
-		UpdateInterval string `yaml:"update_interval"`
-		DownloadDir    string `yaml:"download_dir"`
-		UploadDir      string `yaml:"upload_dir"`
-		PublicDir      string `yaml:"public_dir"`
-	} `yaml:"server"`
-	Lists struct {
-		Bl      []string `yaml:"bl"`
-		BlPlain []string `yaml:"bl_plain"`
-		Wl      []string `yaml:"wl"`
-		WlPlain []string `yaml:"wl_plain"`
-		IpPlain []string `yaml:"ip_plain"`
-	} `yaml:"lists"`
-}
 
 // Cfg Testing in future
 type Cfg struct {
@@ -66,156 +44,8 @@ type Server struct {
 	PublicDir      string
 }
 
-type PingHost struct {
-	name string
-	port int
-}
-
-// Config file loader
-func loadConfig(filename string, dirStatus bool) (Config, error) {
-	var config Config
-	// Check go run or run binary
-	if !dirStatus {
-		filename = updatePath(filename)
-	}
-	configFile, err := os.Open(filename)
-	//fmt.Println(filename)
-	defer configFile.Close()
-	if err != nil {
-		return config, err
-	}
-
-	decoder := yaml.NewDecoder(configFile)
-	err = decoder.Decode(&config)
-	return config, err
-}
-
-func loadUnmarshalConfig(filename string, dirStatus bool) map[string]interface{} {
-
-	// Check go run or run binary
-	if !dirStatus {
-		filename = updatePath(filename)
-	}
-	configFile, err := os.ReadFile(filename)
-	//fmt.Println(filename)
-	handleErr(err)
-
-	var data map[string]interface{}
-	err = yaml.Unmarshal(configFile, &data)
-	handleErr(err)
-
-	return data
-}
-
 func responseOutput(w http.ResponseWriter, message string) (int, error) {
 	return fmt.Fprint(w, message)
-}
-
-// func getDatetime() time.Time
-func getTime() string {
-	return time.Now().Format("2006-01-02 15:04:05")
-}
-
-// Error handler
-func handleErr(e error) {
-	if e != nil {
-		//panic(e)
-		log.Println(e)
-	}
-}
-
-// Sigterm handler
-func handler(signal os.Signal) {
-	if signal == syscall.SIGTERM {
-		fmt.Println("Got kill signal. ")
-		fmt.Println("Program will terminate now.")
-		os.Exit(0)
-	} else if signal == syscall.SIGINT {
-		fmt.Println("Got CTRL+C signal")
-		fmt.Println("Closing.")
-		os.Exit(0)
-	}
-}
-
-// If argument passed
-func isFlagPassed(name string) bool {
-	found := false
-	flag.Visit(func(f *flag.Flag) {
-		if f.Name == name {
-			found = true
-		}
-	})
-	return found
-}
-
-// If file exist in target
-func isFileExists(file string) bool {
-	if _, err := os.Stat(file); err == nil {
-		return true
-	} else {
-		return false
-	}
-}
-
-func isDirEmpty(name string) bool {
-	f, err := os.Open(name)
-	if err != nil {
-		return false
-	}
-	defer f.Close()
-
-	_, err = f.Readdirnames(1) // Or f.Readdir(1)
-	if err == io.EOF {
-		return true
-	}
-	return false
-}
-
-// If two file is the same
-func isFileMatched(path1, path2 string) (sameSize bool, err error) {
-	f1, err := os.Stat(path1)
-	if err != nil {
-		return
-	}
-	f2, err := os.Stat(path2)
-	if err != nil {
-		return
-	}
-	sameSize = f1.Size() == f2.Size()
-	return
-}
-
-// Detect runner form binary or form "go run"
-func getWorkDir() string {
-	ex, err := os.Executable()
-	if err != nil {
-		panic(err)
-	}
-
-	dir := filepath.Dir(ex)
-
-	// Helpful when developing:
-	// when running `go run`, the executable is in a temporary directory.
-	if strings.Contains(dir, "go-build") {
-		return "."
-	}
-	return filepath.Dir(ex)
-}
-
-// Auto config file path updater
-func updatePath(filename string) string {
-	var path string
-	path = getWorkDir()
-	filename = path + "/" + filename
-	return filename
-}
-
-// Delete target file
-func deleteFile(file string) {
-	e := os.Remove(file)
-	if e != nil {
-		log.Fatal(e)
-	}
 }
 
 // Thx: https://github.com/mactsouk/opensource.com
@@ -236,8 +66,8 @@ func copyFile(src, dst string, BUFFERSIZE int64) error {
 	}
 	defer source.Close()
 
-	if isFileExists(dst) {
-		deleteFile(dst)
+	if util.IsFileExists(dst) {
+		util.DeleteFile(dst)
 	}
 
 	_, err = os.Stat(dst)
@@ -273,32 +103,6 @@ func copyFile(src, dst string, BUFFERSIZE int64) error {
 	return err
 }
 
-// Create catalog in target place
-func createDir(dirName string, dirStatus bool) error {
-
-	if !dirStatus {
-		dirName = updatePath(dirName)
-	}
-	err := os.MkdirAll(dirName, os.ModeSticky|os.ModePerm)
-
-	if err == nil || os.IsExist(err) {
-		return nil
-	} else {
-		return err
-	}
-}
-
-// Get last octet in passed string
-// Thx: https://github.com/peeyushsrj/golang-snippets
-func getFilenameFromUrl(urlstr string) string {
-	u, err := url.Parse(urlstr)
-	if err != nil {
-		log.Fatal("Error due to parsing url: ", err)
-	}
-	x, _ := url.QueryUnescape(u.EscapedPath())
-	return filepath.Base(x)
-}
-
 // Merge files to one from folder to target
 func mergeFiles(path string, ext string, dest string) {
 	err := fileMerger.Merge(path, ext, dest, false)
@@ -310,7 +114,7 @@ func mergeFiles(path string, ext string, dest string) {
 // URL file downloader
 func downloadFile(url string, dest string) error {
 	var postfix = "_prev"
-	var filename = getFilenameFromUrl(url)
+	var filename = util.GetFilenameFromUrl(url)
 	var filepath = filepath.Join(dest, filename)
 	if !strings.Contains(filename, ".txt") {
 		filepath = filepath + ".txt"
@@ -321,7 +125,7 @@ func downloadFile(url string, dest string) error {
 	//	fmt.Printf("File exists %s\n", filename)
 	//}
 
-	exist := isFileExists(filepath)
+	exist := util.IsFileExists(filepath)
 	if exist {
 		e := os.Rename(filepath, filepath+postfix)
 		if e != nil {
@@ -352,22 +156,22 @@ func downloadFile(url string, dest string) error {
 		return err
 	}
 
-	mergedFileName := MergedDir + "/" + getFilenameFromUrl(dest) + ".txt"
+	mergedFileName := MergedDir + "/" + util.GetFilenameFromUrl(dest) + ".txt"
 	if exist {
-		matched, _ := isFileMatched(filepath, filepath+postfix)
+		matched, _ := util.IsFileMatched(filepath, filepath+postfix)
 		if matched {
 			fmt.Println("Previous and current files - matched. No needed action.")
 		} else {
 			fmt.Printf("Merging files: %s\n", filename)
 
-			if isFileExists(mergedFileName) {
-				deleteFile(mergedFileName)
+			if util.IsFileExists(mergedFileName) {
+				util.DeleteFile(mergedFileName)
 			}
 			mergeFiles(dest, ".txt", mergedFileName)
 		}
 	} else {
-		if isFileExists(mergedFileName) {
-			deleteFile(mergedFileName)
+		if util.IsFileExists(mergedFileName) {
+			util.DeleteFile(mergedFileName)
 		}
 		mergeFiles(dest, ".txt", mergedFileName)
 	}
@@ -381,12 +185,12 @@ func download(url []string, dest string) {
 	for i, u := range url {
 		fmt.Println(i, u)
 		err := downloadFile(u, dest)
-		handleErr(err)
+		util.HandleErr(err)
 	}
 }
 
 func cleanFile(file string) {
-	if isFileExists(file) {
+	if util.IsFileExists(file) {
 		if err := os.Truncate(file, 0); err != nil {
 			log.Printf("Failed to truncate: %v", err)
 		}
@@ -473,7 +277,7 @@ func prepareFiles(path string, fi os.FileInfo, err error) error {
 
 	if matched {
 		read, err := os.ReadFile(path)
-		handleErr(err)
+		util.HandleErr(err)
 		//fmt.Println(string(read))
 		fmt.Println(path)
 
@@ -578,41 +382,42 @@ func publishFiles(mergeddir string, out string) {
 	}
 }
 
-func initial(config Config, dirStatus bool) {
+func initial(config conf.Config, dirStatus bool) {
 
 	// Folder name for published file, public sub-catalog
 	var publishFilesDir = config.Server.PublicDir + "/files"
+	var err error
 	// Process catalogs & download
 	//fmt.Println(config.Server.Port)
-	createDir(MergedDir, dirStatus)
-	createDir(config.Server.UploadDir, dirStatus)
-	createDir(config.Server.PublicDir, dirStatus)
-	createDir(publishFilesDir, dirStatus)
+	err = util.CreateDir(MergedDir, dirStatus)
+	err = util.CreateDir(config.Server.UploadDir, dirStatus)
+	err = util.CreateDir(config.Server.PublicDir, dirStatus)
+	err = util.CreateDir(publishFilesDir, dirStatus)
 
 	// Download files
-	createDir(config.Server.DownloadDir+"/bl", dirStatus)
+	err = util.CreateDir(config.Server.DownloadDir+"/bl", dirStatus)
 	download(config.Lists.Bl, config.Server.DownloadDir+"/bl")
 
-	createDir(config.Server.DownloadDir+"/wl", dirStatus)
+	err = util.CreateDir(config.Server.DownloadDir+"/wl", dirStatus)
 	download(config.Lists.Wl, config.Server.DownloadDir+"/wl")
 
-	createDir(config.Server.DownloadDir+"/bl_plain", dirStatus)
+	err = util.CreateDir(config.Server.DownloadDir+"/bl_plain", dirStatus)
 	download(config.Lists.BlPlain, config.Server.DownloadDir+"/bl_plain")
 
-	createDir(config.Server.DownloadDir+"/wl_plain", dirStatus)
+	err = util.CreateDir(config.Server.DownloadDir+"/wl_plain", dirStatus)
 	download(config.Lists.WlPlain, config.Server.DownloadDir+"/wl_plain")
 
-	createDir(config.Server.DownloadDir+"/ip_plain", dirStatus)
+	err = util.CreateDir(config.Server.DownloadDir+"/ip_plain", dirStatus)
 	download(config.Lists.IpPlain, config.Server.DownloadDir+"/ip_plain")
 
 	// Cleaning Process
-	err := filepath.Walk(MergedDir, prepareFiles)
-	handleErr(err)
+	err = filepath.Walk(MergedDir, prepareFiles)
+	util.HandleErr(err)
 	publishFiles(MergedDir, publishFilesDir)
 	//
-	if !isDirEmpty(config.Server.UploadDir) {
+	if !util.IsDirEmpty(config.Server.UploadDir) {
 		err := filepath.Walk(config.Server.UploadDir, prepareFiles)
-		handleErr(err)
+		util.HandleErr(err)
 
 		mergedFileName := publishFilesDir + "/dropped_ip.txt"
 		mergeFiles(config.Server.UploadDir, ".txt", mergedFileName)
@@ -621,22 +426,22 @@ func initial(config Config, dirStatus bool) {
 
 }
 
-func runTicker(config Config, dirStatus bool, group *sync.WaitGroup) {
+func runTicker(config conf.Config, dirStatus bool, group *sync.WaitGroup) {
 	defer group.Done()
 
 	initial(config, dirStatus)
-	callPinger()
-	fmt.Println("Interval done at: " + getTime())
+	util.CallPinger()
+	fmt.Println("Interval done at: " + util.GetTime())
 	fmt.Println("Next iteration will start after: " + config.Server.UpdateInterval)
 
 	duration, err := time.ParseDuration(config.Server.UpdateInterval)
-	handleErr(err)
+	util.HandleErr(err)
 	tick := time.Tick(time.Duration(duration.Minutes()) * time.Minute)
 
 	for range tick {
 		initial(config, dirStatus)
-		callPinger()
-		fmt.Println("Interval done at: " + getTime())
+		util.CallPinger()
+		fmt.Println("Interval done at: " + util.GetTime())
 		fmt.Println("Next iteration will start after: " + config.Server.UpdateInterval)
 	}
 }
@@ -654,14 +459,14 @@ func webUploadHandler(w http.ResponseWriter, r *http.Request) {
 	//
 
 	f, err := os.OpenFile("./upload/"+header.Filename, os.O_WRONLY|os.O_CREATE, 0666)
-	handleErr(err)
+	util.HandleErr(err)
 
 	defer f.Close()
 	_, err = io.Copy(f, file)
 
 	_, err = responseOutput(w, "File uploaded successfully : ")
 	_, err = responseOutput(w, header.Filename)
-	handleErr(err)
+	util.HandleErr(err)
 
 }
 
@@ -708,14 +513,14 @@ func listPublicFilesDir(target string) map[string]string {
 	var sz string
 	var PublicFiles []string
 	if err != nil {
-		handleErr(err)
+		util.HandleErr(err)
 	}
 
 	for _, file := range files {
 		//fmt.Println(file.Name(), file.IsDir())
 		//fmt.Println(target + file.Name())
 		i, err := file.Info()
-		handleErr(err)
+		util.HandleErr(err)
 		sz = prettyByteSize(int(i.Size()))
 		m[file.Name()] = sz
 		PublicFiles = append(PublicFiles, file.Name(), sz)
@@ -729,7 +534,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 
 	appVersion := "0.2.0"
 	hostname, err := os.Hostname()
-	handleErr(err)
+	util.HandleErr(err)
 	publicFiles := listPublicFilesDir("./public/files/")
 
 	//
@@ -755,10 +560,10 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		PingStatus  map[string]string
 	}{
 		appVersion,
-		getTime(),
+		util.GetTime(),
 		hostname,
 		publicFiles,
-		hostsPingStat,
+		HostsPingStat,
 	}
 
 	//err = ts.Execute(w, data)
@@ -777,52 +582,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 
 func timeHandler(w http.ResponseWriter, r *http.Request) {
 	_, err := responseOutput(w, time.Now().Format("02 Jan 2006 15:04:05 MST"))
-	handleErr(err)
-}
-
-func pingHost(host string, p int) {
-	port := strconv.Itoa(p)
-	timeout := time.Duration(2 * time.Second)
-	_, err := net.DialTimeout("tcp", host+":"+port, timeout)
-	if err != nil {
-		fmt.Printf("%s %s %s\n", host, "not responding", err.Error())
-		hostsPingStat[host+" ("+port+")"] = "Not response"
-		//return host + " (" + port + ")", false
-	} else {
-		fmt.Printf("%s %s %s\n", host, "responding on port:", port)
-		hostsPingStat[host+" ("+port+")"] = "Ok"
-		//return host + " (" + port + ")", true
-	}
-
-}
-
-func callPinger() {
-
-	var dirStatus = strings.Contains(getWorkDir(), ".")
-
-	configData := loadUnmarshalConfig(CONFIG, dirStatus)
-	pingConfig := configData["ping"].([]interface{})
-	var p PingHost
-	for _, v := range pingConfig {
-		//log.Println(k, ":", v)
-		targets := v.(map[string]interface{})
-		for _, param := range targets {
-			//fmt.Println(param)
-			hosts := param.(map[string]interface{})
-			for options, host := range hosts {
-				switch options {
-				case "name":
-					p.name = host.(string)
-				case "port":
-					p.port = host.(int)
-				}
-
-			}
-
-		}
-		//fmt.Println("Target: ", p.name)
-		pingHost(p.name, p.port)
-	}
+	util.HandleErr(err)
 }
 
 // Main logic
@@ -830,19 +590,19 @@ func main() {
 
 	// Get config and determine location
 
-	var dirStatus = strings.Contains(getWorkDir(), ".")
+	var dirStatus = strings.Contains(util.GetWorkDir(), ".")
 	var wg = new(sync.WaitGroup)
 	wg.Add(4)
 
 	// Get arguments
 	//Add usage ./cactusd -config <config ath or name>
-	flag.StringVar(&CONFIG, "config", "config.yml", "Define config file")
+	flag.StringVar(&conf.CONFIG, "config", "config.yml", "Define config file")
 	flag.Parse()
-	if isFlagPassed("config") {
+	if util.IsFlagPassed("config") {
 		fmt.Println(`Argument "-config" passed`)
 	}
 
-	config, _ := loadConfig(CONFIG, dirStatus)
+	config, _ := conf.LoadConfig(conf.CONFIG, dirStatus)
 
 	//serverConfig := configData["server"].(map[string]interface{})
 	//listsConfig := configData["lists"].(map[string]interface{})
@@ -881,7 +641,7 @@ func main() {
 	go func() {
 		for {
 			s := <-sigchnl
-			handler(s)
+			util.SigtermHandler(s)
 		}
 	}()
 
