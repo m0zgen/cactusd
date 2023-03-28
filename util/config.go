@@ -10,7 +10,7 @@ const MergedDir string = "merged"
 var CONFIG string
 var HostsPingStat = hostsPingStat
 
-// Config file structure
+// Config file structure type
 type Config struct {
 	Server struct {
 		Port           string `yaml:"port"`
@@ -28,7 +28,7 @@ type Config struct {
 	} `yaml:"lists"`
 }
 
-// LoadConfig Config file loader
+// LoadConfig - Config file loader
 func LoadConfig(filename string, dirStatus bool) (Config, error) {
 	var config Config
 	// Check go run or run binary
@@ -47,7 +47,8 @@ func LoadConfig(filename string, dirStatus bool) (Config, error) {
 	return config, err
 }
 
-func loadUnmarshalConfig(filename string, dirStatus bool) map[string]interface{} {
+// LoadUnmarshalConfig - Load yml ad interface
+func LoadUnmarshalConfig(filename string, dirStatus bool) map[string]interface{} {
 
 	// Check go run or run binary
 	if !dirStatus {

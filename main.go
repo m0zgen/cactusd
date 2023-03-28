@@ -2,8 +2,8 @@ package main
 
 import (
 	"bufio"
+	"cactusd/util"
 	conf "cactusd/util"
-	util "cactusd/util"
 	"flag"
 	"fmt"
 	fileMerger "github.com/Ja7ad/goMerge"
@@ -186,14 +186,6 @@ func download(url []string, dest string) {
 		fmt.Println(i, u)
 		err := downloadFile(u, dest)
 		util.HandleErr(err)
-	}
-}
-
-func cleanFile(file string) {
-	if util.IsFileExists(file) {
-		if err := os.Truncate(file, 0); err != nil {
-			log.Printf("Failed to truncate: %v", err)
-		}
 	}
 }
 

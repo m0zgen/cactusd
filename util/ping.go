@@ -37,7 +37,7 @@ func CallPinger() {
 
 	var dirStatus = strings.Contains(GetWorkDir(), ".")
 
-	configData := loadUnmarshalConfig(CONFIG, dirStatus)
+	configData := LoadUnmarshalConfig(CONFIG, dirStatus)
 	pingConfig := configData["ping"].([]interface{})
 	var p PingParams
 	for _, v := range pingConfig {

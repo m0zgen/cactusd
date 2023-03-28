@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-// SigtermHandler catch Ctrl+C or SIGTERM
+// SigtermHandler - Catch Ctrl+C or SIGTERM
 func SigtermHandler(signal os.Signal) {
 	if signal == syscall.SIGTERM {
 		fmt.Println("Got kill signal. ")
@@ -26,7 +26,7 @@ func SigtermHandler(signal os.Signal) {
 	}
 }
 
-// HandleErr Error handler
+// HandleErr - Error handler
 func HandleErr(e error) {
 	if e != nil {
 		//panic(e)
@@ -34,7 +34,7 @@ func HandleErr(e error) {
 	}
 }
 
-// UpdatePath auto config file path updater
+// UpdatePath - Auto config file path updater
 func UpdatePath(filename string) string {
 	var path string
 	path = GetWorkDir()
@@ -42,7 +42,7 @@ func UpdatePath(filename string) string {
 	return filename
 }
 
-// GetWorkDir detect runner from binary or from "go run"
+// GetWorkDir - Detect runner from binary or from "go run"
 func GetWorkDir() string {
 	ex, err := os.Executable()
 	if err != nil {
@@ -59,12 +59,12 @@ func GetWorkDir() string {
 	return filepath.Dir(ex)
 }
 
-// GetTime return current time date with described format
+// GetTime - Return current time date with described format
 func GetTime() string {
 	return time.Now().Format("2006-01-02 15:04:05")
 }
 
-// GetFilenameFromUrl return last octet in passed string
+// GetFilenameFromUrl - Return last octet in passed string
 // Thx: https://github.com/peeyushsrj/golang-snippets
 func GetFilenameFromUrl(urlstr string) string {
 	u, err := url.Parse(urlstr)
@@ -75,7 +75,7 @@ func GetFilenameFromUrl(urlstr string) string {
 	return filepath.Base(x)
 }
 
-// IsFlagPassed checks passed arguments for cactusd
+// IsFlagPassed - Checks passed arguments for cactusd
 func IsFlagPassed(name string) bool {
 	found := false
 	flag.Visit(func(f *flag.Flag) {
@@ -86,7 +86,7 @@ func IsFlagPassed(name string) bool {
 	return found
 }
 
-// IsDirEmpty return bool value for caller
+// IsDirEmpty - Return bool value for caller
 func IsDirEmpty(name string) bool {
 	f, err := os.Open(name)
 	if err != nil {
@@ -101,7 +101,7 @@ func IsDirEmpty(name string) bool {
 	return false
 }
 
-// IsFileExists return bool value for caller
+// IsFileExists - Return bool value for caller
 func IsFileExists(file string) bool {
 	if _, err := os.Stat(file); err == nil {
 		return true
@@ -110,7 +110,7 @@ func IsFileExists(file string) bool {
 	}
 }
 
-// IsFileMatched checks if two file is the same
+// IsFileMatched - Checks if two file is the same
 func IsFileMatched(path1, path2 string) (sameSize bool, err error) {
 	f1, err := os.Stat(path1)
 	if err != nil {
@@ -124,7 +124,7 @@ func IsFileMatched(path1, path2 string) (sameSize bool, err error) {
 	return
 }
 
-// CreateDir create catalog in target place
+// CreateDir - Create catalog in target place
 func CreateDir(dirName string, dirStatus bool) error {
 
 	if !dirStatus {
@@ -139,7 +139,16 @@ func CreateDir(dirName string, dirStatus bool) error {
 	}
 }
 
-// DeleteFile delete target file
+// CleanFile - Clean/Delete file content
+func CleanFile(file string) {
+	if IsFileExists(file) {
+		if err := os.Truncate(file, 0); err != nil {
+			log.Printf("Failed to truncate: %v", err)
+		}
+	}
+}
+
+// DeleteFile - Delete target file
 func DeleteFile(file string) {
 	e := os.Remove(file)
 	if e != nil {
