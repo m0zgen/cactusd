@@ -376,7 +376,8 @@ func download(url []string, dest string) {
 	//fmt.Println(url[1])
 	for i, u := range url {
 		fmt.Println(i, u)
-		downloadFile(u, dest)
+		err := downloadFile(u, dest)
+		handleErr(err)
 	}
 }
 
