@@ -464,7 +464,8 @@ func prepareFiles(path string, fi os.FileInfo, err error) error {
 	)
 
 	//r := regexp.MustCompile(`((?m)(#|\s#).*)`)
-	r2 := regexp.MustCompile(`(?m)(^[$&+,:;=?@#|'<>.\-^*()%!].+$)|(^.*::.*)|(#|\s#.*)|(^.*\/\/.*)|(^.*,.*$)|(^.*\.-.*$)`)
+	r2 := regexp.MustCompile(
+		`(?m)(^[$&+,:;=?@#|'<>.\-^*()%!].+$)|(^.*::.*)|(#|\s#.*)|(^.*\/\/.*)|(^.*,.*$)|(^.*\.-.*$)|(^.*[\$\^].*$)`)
 	// Select empty lines
 	//r2 := regexp.MustCompile(`(?m)^\s*$[\r\n]*|[\r\n]+\s+\z`)
 	// Extract domain names from list:
@@ -726,7 +727,7 @@ func listPublicFilesDir(target string) map[string]string {
 
 func serveTemplate(w http.ResponseWriter, r *http.Request) {
 
-	appVersion := "0.1.9"
+	appVersion := "0.2.0"
 	hostname, err := os.Hostname()
 	handleErr(err)
 	publicFiles := listPublicFilesDir("./public/files/")
