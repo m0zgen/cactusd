@@ -464,7 +464,7 @@ func prepareFiles(path string, fi os.FileInfo, err error) error {
 	)
 
 	//r := regexp.MustCompile(`((?m)(#|\s#).*)`)
-	r2 := regexp.MustCompile(`(?m)(^[$&+,:;=?@#|'<>.\-^*()%!].+$)|(^.*::.*)|(#|\s#.*)|(^.*\/\/.*)`)
+	r2 := regexp.MustCompile(`(?m)(^[$&+,:;=?@#|'<>.\-^*()%!].+$)|(^.*::.*)|(#|\s#.*)|(^.*\/\/.*)|(^.*,.*$)|(^.*\.-.*$)`)
 	// Select empty lines
 	//r2 := regexp.MustCompile(`(?m)^\s*$[\r\n]*|[\r\n]+\s+\z`)
 	// Extract domain names from list:
