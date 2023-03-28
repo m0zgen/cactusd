@@ -14,6 +14,11 @@ const MergedDir string = "merged"
 var CONFIG string
 var HostsPingStat = hostsPingStat
 
+var (
+	yconfig     map[string]interface{}
+	yconfigLock = new(sync.RWMutex)
+)
+
 // Config file structure type
 type Config struct {
 	Server struct {
@@ -70,12 +75,6 @@ func LoadUnmarshalConfig(filename string, dirStatus bool) map[string]interface{}
 }
 
 // test fly reload
-
-var (
-	yconfig     map[string]interface{}
-	yconfigLock = new(sync.RWMutex)
-)
-
 func loadYConfig(filename string, dirStatus bool, fail bool) {
 	if !dirStatus {
 		filename = UpdatePath(filename)
