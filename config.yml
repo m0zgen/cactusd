@@ -1,13 +1,15 @@
 server:
   port: 3300
   # Heart beat - 1m, 4h and etc
-  update_interval: 31m
+  update_interval: 1m
   # Target to download
   download_dir: download
   # Upload catalog from remote clients
   upload_dir: upload
   # Web server public catalog
   public_dir: public
+  # Disable download lists (TODO)
+  disable_download: True
   # Ping interval (TODO)
   ping_interval: 5m
   # Ping timeout (TODO)
@@ -20,7 +22,7 @@ ping:
       name: 1.1.1.1
       port: 443
   - host:
-      name: 8.8.8.8
+      name: 9.9.9.9
       port: 53
   - host:
       name: bld.sys-adm.in

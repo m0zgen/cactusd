@@ -596,6 +596,8 @@ func main() {
 
 	config, _ := conf.LoadConfig(conf.CONFIG, dirStatus)
 
+	conf.InitYConfig(conf.CONFIG, dirStatus)
+
 	//serverConfig := configData["server"].(map[string]interface{})
 	//listsConfig := configData["lists"].(map[string]interface{})
 

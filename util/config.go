@@ -2,7 +2,11 @@ package util
 
 import (
 	"gopkg.in/yaml.v3"
+	"log"
 	"os"
+	"os/signal"
+	"sync"
+	"syscall"
 )
 
 const MergedDir string = "merged"
@@ -63,4 +67,47 @@ func LoadUnmarshalConfig(filename string, dirStatus bool) map[string]interface{}
 	HandleErr(err)
 
 	return data
+}
+
+// test fly reload
+
+var (
+	yconfig     map[string]interface{}
+	yconfigLock = new(sync.RWMutex)
+)
+
+func loadYConfig(filename string, dirStatus bool, fail bool) {
+	if !dirStatus {
+		filename = UpdatePath(filename)
+	}
+	file, err := os.ReadFile(filename)
+	HandleErr(err)
+
+	var data map[string]interface{}
+	err = yaml.Unmarshal(file, &data)
+	HandleErr(err)
+
+	yconfigLock.Lock()
+	yconfig = data
+	yconfigLock.Unlock()
+}
+
+func GetYConfig() map[string]interface{} {
+	yconfigLock.RLock()
+	defer yconfigLock.RUnlock()
+	return yconfig
+}
+
+// InitYConfig go calls init on start
+func InitYConfig(configName string, dirStatus bool) {
+	loadYConfig(configName, dirStatus, true)
+	s := make(chan os.Signal, 1)
+	signal.Notify(s, syscall.SIGUSR2)
+	go func() {
+		for {
+			<-s
+			loadYConfig(configName, dirStatus, false)
+			log.Println("Reloaded")
+		}
+	}()
 }
