@@ -107,6 +107,10 @@ func loadUnmarshalConfig(filename string, dirStatus bool) map[string]interface{}
 	return data
 }
 
+func responseOutput(w http.ResponseWriter, message string) (int, error) {
+	return fmt.Fprint(w, message)
+}
+
 // func getDatetime() time.Time
 func getTime() string {
 	return time.Now().Format("2006-01-02 15:04:05")
@@ -654,8 +658,9 @@ func webUploadHandler(w http.ResponseWriter, r *http.Request) {
 	defer f.Close()
 	io.Copy(f, file)
 
-	fmt.Fprintf(w, "File uploaded successfully : ")
-	fmt.Fprintf(w, header.Filename)
+	_, err = responseOutput(w, "File uploaded successfully : ")
+	_, err = responseOutput(w, header.Filename)
+	handleErr(err)
 
 }
 
@@ -770,7 +775,8 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 }
 
 func timeHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, time.Now().Format("02 Jan 2006 15:04:05 MST"))
+	_, err := responseOutput(w, time.Now().Format("02 Jan 2006 15:04:05 MST"))
+	handleErr(err)
 }
 
 func pingHost(host string, p int) {
@@ -787,6 +793,35 @@ func pingHost(host string, p int) {
 		//return host + " (" + port + ")", true
 	}
 
+}
+
+func callPinger() {
+
+	var dirStatus = strings.Contains(getWorkDir(), ".")
+
+	configData := loadUnmarshalConfig(CONFIG, dirStatus)
+	pingConfig := configData["ping"].([]interface{})
+	var p PingHost
+	for _, v := range pingConfig {
+		//log.Println(k, ":", v)
+		targets := v.(map[string]interface{})
+		for _, param := range targets {
+			//fmt.Println(param)
+			hosts := param.(map[string]interface{})
+			for options, host := range hosts {
+				switch options {
+				case "name":
+					p.name = host.(string)
+				case "port":
+					p.port = host.(int)
+				}
+
+			}
+
+		}
+		//fmt.Println("Target: ", p.name)
+		pingHost(p.name, p.port)
+	}
 }
 
 // Main logic
@@ -854,36 +889,5 @@ func main() {
 
 	wg.Wait()
 	// Routines end
-
-}
-
-// Testing
-func callPinger() {
-
-	var dirStatus = strings.Contains(getWorkDir(), ".")
-
-	configData := loadUnmarshalConfig(CONFIG, dirStatus)
-	pingConfig := configData["ping"].([]interface{})
-	var p PingHost
-	for _, v := range pingConfig {
-		//log.Println(k, ":", v)
-		targets := v.(map[string]interface{})
-		for _, param := range targets {
-			//fmt.Println(param)
-			hosts := param.(map[string]interface{})
-			for options, host := range hosts {
-				switch options {
-				case "name":
-					p.name = host.(string)
-				case "port":
-					p.port = host.(int)
-				}
-
-			}
-
-		}
-		//fmt.Println("Target: ", p.name)
-		pingHost(p.name, p.port)
-	}
 
 }
