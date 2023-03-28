@@ -929,18 +929,3 @@ func fullRegex(file string, filename string, out string) {
 	}
 
 }
-
-func createServer(port int, name string) *http.Server {
-	// Create mux
-	mux := http.NewServeMux()
-	// Handler
-	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
-		fmt.Fprint(writer, "Hello from server: "+name)
-	})
-	// new server
-	server := http.Server{
-		Addr:    fmt.Sprintf(":%v", port),
-		Handler: mux,
-	}
-	return &server
-}
