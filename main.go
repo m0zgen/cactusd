@@ -464,7 +464,7 @@ func prepareFiles(path string, fi os.FileInfo, err error) error {
 	)
 
 	//r := regexp.MustCompile(`((?m)(#|\s#).*)`)
-	r2 := regexp.MustCompile(`(?m)(^[$&+,:;=?@#|'<>.\-^*()%!\s\d{0,9}].+$)|(^.*::.*)|(#|\s#.*)|(^.*\/\/.*)`)
+	r2 := regexp.MustCompile(`(?m)(^[$&+,:;=?@#|'<>.\-^*()%!].+$)|(^.*::.*)|(#|\s#.*)|(^.*\/\/.*)`)
 	// Select empty lines
 	//r2 := regexp.MustCompile(`(?m)^\s*$[\r\n]*|[\r\n]+\s+\z`)
 	// Extract domain names from list:
@@ -656,7 +656,7 @@ func webUploadHandler(w http.ResponseWriter, r *http.Request) {
 	handleErr(err)
 
 	defer f.Close()
-	io.Copy(f, file)
+	_, err = io.Copy(f, file)
 
 	_, err = responseOutput(w, "File uploaded successfully : ")
 	_, err = responseOutput(w, header.Filename)
