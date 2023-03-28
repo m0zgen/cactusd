@@ -269,7 +269,7 @@ func copyFile(src, dst string, BUFFERSIZE int64) error {
 	return err
 }
 
-// Create cataog in target place
+// Create catalog in target place
 func createDir(dirName string, dirStatus bool) error {
 
 	if !dirStatus {
@@ -333,7 +333,7 @@ func downloadFile(url string, dest string) error {
 	defer out.Close()
 
 	// Get the data
-	// TODO: detect 404 pages or 200 responce
+	// TODO: detect 404 pages or 200 response
 	fmt.Printf("Downloading file %s\n", filepath)
 	resp, err := http.Get(url)
 
@@ -797,7 +797,7 @@ func main() {
 	var wg = new(sync.WaitGroup)
 	wg.Add(4)
 
-	// Get agrs
+	// Get arguments
 	//Add usage ./cactusd -config <config ath or name>
 	flag.StringVar(&CONFIG, "config", "config.yml", "Define config file")
 	flag.Parse()
@@ -897,7 +897,6 @@ func fullRegex(file string, filename string, out string) {
 	scanner := bufio.NewScanner(dat)
 	r1 := regexp.MustCompile(`(^#.*$)`)
 	r2 := regexp.MustCompile(`(^(\/.*\/)$)|(^[a-z].*$)|(?:[\w-]+\.)+[\w-]+`)
-	//re := regexp.MustCompile(`(?i)^(.*)(?:Inc\.|Incorp\.|Incorporation\.|Incorpa\.)(.*)$`)
 
 	outFile := out + "/" + filename
 	cleanFile(outFile)
