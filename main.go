@@ -173,9 +173,16 @@ func main() {
 	// Get arguments
 	//Add usage ./cactusd -config <config ath or name>
 	flag.StringVar(&conf.CONFIG, "config", "config.yml", "Define config file")
+	showVersion := flag.Bool("version", false, "Show Cactusd version")
+
 	flag.Parse()
 	if util.IsFlagPassed("config") {
 		fmt.Println(`Argument "-config" passed: `, conf.CONFIG)
+	}
+
+	if *showVersion {
+		fmt.Println("Cactusd Version: ", conf.AppVersion)
+		return
 	}
 
 	config, _ := conf.LoadConfig(conf.CONFIG, dirStatus)

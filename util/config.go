@@ -19,6 +19,10 @@ var (
 	yconfigLock = new(sync.RWMutex)
 )
 
+var (
+	AppVersion = "0.2.1"
+)
+
 // Config file structure type
 type Config struct {
 	Server struct {

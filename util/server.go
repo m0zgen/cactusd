@@ -88,7 +88,7 @@ func webUpload(w http.ResponseWriter, r *http.Request) {
 // Template bind
 func serveTemplate(w http.ResponseWriter, r *http.Request) {
 
-	appVersion := "0.2.0"
+	appVersion := "v" + AppVersion
 	hostname, err := os.Hostname()
 	HandleErr(err)
 	publicFiles := listPublicFilesDir("./public/files/")
