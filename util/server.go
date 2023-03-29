@@ -61,7 +61,7 @@ func TimeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // File uploader
-func webUploadHandler(w http.ResponseWriter, r *http.Request) {
+func webUpload(w http.ResponseWriter, r *http.Request) {
 	r.ParseMultipartForm(32 << 20)
 	file, header, err := r.FormFile("file") // the FormFile function takes in the POST input id file
 
@@ -73,7 +73,7 @@ func webUploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	//
 
-	f, err := os.OpenFile("./upload/"+header.Filename, os.O_WRONLY|os.O_CREATE, 0666)
+	f, err := os.OpenFile("./upload/"+header.Filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	HandleErr(err)
 
 	defer f.Close()
@@ -148,7 +148,7 @@ func RunHttpServer(port string) {
 
 	//http.Handle("/", fileHandler)
 	http.HandleFunc("/time", TimeHandler)
-	http.HandleFunc("/upload", webUploadHandler)
+	http.HandleFunc("/upload", webUpload)
 
 	// Run server
 	//handler := http.FileServer(http.Dir("./public"))
