@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-var hostsPingStat = make(map[string]string)
+var hostsPingStat = make(map[string]bool)
 
 type PingParams struct {
 	name string
@@ -22,11 +22,11 @@ func PingHost(host string, p int) {
 	_, err := net.DialTimeout("tcp", host+":"+port, timeout)
 	if err != nil {
 		fmt.Printf("%s %s %s\n", host, "not responding", err.Error())
-		hostsPingStat[host+" ("+port+")"] = "Not response"
+		hostsPingStat[host+" ("+port+")"] = false
 		//return host + " (" + port + ")", false
 	} else {
 		fmt.Printf("%s %s %s\n", host, "responding on port:", port)
-		hostsPingStat[host+" ("+port+")"] = "Ok"
+		hostsPingStat[host+" ("+port+")"] = true
 		//return host + " (" + port + ")", true
 	}
 

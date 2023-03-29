@@ -16,9 +16,24 @@
         <p>Ping status:</p>
         <ul class="is-flex is-flex-wrap-wrap is-align-items-center is-justify-content-center">
             {{range $h, $s := .PingStatus}}
-            <li class="mr-4">
-                <p>{{$h}}<br>{{$s}}</p>
-            </li>
+<!--            <li class="mr-4">-->
+<!--                <p>{{$h}}<br>{{$s}}</p>-->
+<!--            </li>-->
+
+            {{if $s}}
+                <li class="mr-4">
+                    <p>{{$h}}<br>
+                       <strong style="color: forestgreen">Ok</strong>
+                    </p>
+                </li>
+            {{else}}
+                <li class="mr-4 fail">
+                    <p>{{$h}}</a><br>
+                        <strong style="color: brown">Fail</strong>
+                    </p>
+                </li>
+            {{end}}
+
             {{end}}
         </ul>
 

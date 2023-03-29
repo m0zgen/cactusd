@@ -113,7 +113,7 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		CurrentDate string
 		HostName    string
 		PublicFiles map[string]string
-		PingStatus  map[string]string
+		PingStatus  map[string]bool
 	}{
 		appVersion,
 		GetTime(),
