@@ -1,3 +1,10 @@
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/m0zgen/cactusd/release.yml "Release")](https://github.com/m0zgen/cactusd/actions/workflows/release.yml)
+[![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/m0zgen/cactusd "Go version")](#)
+[![GitHub Release Date](https://img.shields.io/github/release-date/m0zgen/cactusd "Latest release date")](https://github.com/m0zgen/cactusd/releases)
+[![GitHub latest version](https://img.shields.io/github/v/release/m0zgen/cactusd "Latest version")](https://github.com/m0zgen/cactusd/releases)
+[![Go Report Card](https://goreportcard.com/badge/github.com/m0zgen/cactusd)](https://goreportcard.com/report/github.com/m0zgen/cactusd)
+[![CodeQL](https://github.com/m0zgen/cactusd/actions/workflows/codeql.yml/badge.svg?branch=dev&event=push)](https://github.com/m0zgen/cactusd/actions/workflows/codeql.yml)
+
 # CACTUSD
 
 Command and Actions Routine Server Daemon
