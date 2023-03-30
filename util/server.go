@@ -1,6 +1,7 @@
 package util
 
 import (
+	"embed"
 	"fmt"
 	"html/template"
 	"io"
@@ -10,6 +11,9 @@ import (
 	"os"
 	"time"
 )
+
+var AssetsFs embed.FS
+var TemplateFs embed.FS
 
 // Web server handlers
 
@@ -93,14 +97,18 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 	HandleErr(err)
 	publicFiles := listPublicFilesDir("./public/files/")
 
+	//assets := http.FileServer(http.FS(AssetsFs))
+	//fmt.Println("Assets: ", assets)
 	//
 	files := []string{
-		"./templates/base.html",
-		"./templates/partials/nav.html",
-		"./templates/home.html",
+		"templates/base.html",
+		"templates/partials/nav.html",
+		"templates/home.html",
 	}
 
-	ts, err := template.ParseFiles(files...)
+	//ts, err := template.ParseFiles(files...)
+	ts, err := template.ParseFS(TemplateFs, files...)
+
 	if err != nil {
 		log.Print(err.Error())
 		http.Error(w, "Internal Server Error", 500)
