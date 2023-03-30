@@ -12,7 +12,6 @@ import (
 	"time"
 )
 
-var AssetsFs embed.FS
 var TemplateFs embed.FS
 
 // Web server handlers

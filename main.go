@@ -15,11 +15,8 @@ import (
 	"time"
 )
 
-//go:embed assets/* templates/*
+//go:embed templates/*
 var templateFs embed.FS
-
-//go:embed assets/*
-var assetsFs embed.FS
 
 var HostsPingStat = conf.HostsPingStat
 
@@ -175,7 +172,6 @@ func main() {
 
 	var dirStatus = strings.Contains(util.GetWorkDir(), ".")
 	util.TemplateFs = templateFs
-	util.AssetsFs = assetsFs
 
 	var wg = new(sync.WaitGroup)
 	wg.Add(4)
