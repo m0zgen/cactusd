@@ -3,6 +3,7 @@ package main
 import (
 	"cactusd/util"
 	conf "cactusd/util"
+	"embed"
 	"flag"
 	"fmt"
 	"os"
@@ -13,6 +14,12 @@ import (
 	"sync"
 	"time"
 )
+
+//go:embed assets/* templates/*
+var templateFs embed.FS
+
+//go:embed assets/*
+var assetsFs embed.FS
 
 var HostsPingStat = conf.HostsPingStat
 
@@ -167,6 +174,9 @@ func main() {
 	// Get config and determine location
 
 	var dirStatus = strings.Contains(util.GetWorkDir(), ".")
+	util.TemplateFs = templateFs
+	util.AssetsFs = assetsFs
+
 	var wg = new(sync.WaitGroup)
 	wg.Add(4)
 
