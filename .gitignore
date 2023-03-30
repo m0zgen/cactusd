@@ -4,7 +4,9 @@ cactusd
 # Server works dirs
 upload
 download
-public/files
+#public/files
+public
+
 
 # Temps
 tmp
