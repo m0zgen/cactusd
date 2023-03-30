@@ -28,10 +28,10 @@ archives:
     files:
       - README.md
       - config.yml
-      - public/index.html
-      - public/css
-      - public/js
-      - templates
+#      - public/index.html
+#      - public/css
+#      - public/js
+#      - templates
 #gomod:
 #  proxy: true
 checksum:
