@@ -45,7 +45,7 @@ func downloadFile(url string, saveFile string, dest string) error {
 		DeleteFile(mergedFileName)
 	}
 
-	fmt.Println("AAAAAAAAAAAAAAAAAAAAA", dest, mergedFileName)
+	fmt.Println("Merging files:", dest, mergedFileName)
 	MergeFiles(dest, ".txt", mergedFileName)
 
 	//exist := IsFileExists(prevFile)
