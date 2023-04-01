@@ -21,7 +21,7 @@ var (
 )
 
 var (
-	AppVersion = "0.2.4"
+	AppVersion = "0.2.5"
 )
 
 // Config file structure type
