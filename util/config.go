@@ -10,6 +10,7 @@ import (
 )
 
 const MergedDir string = "merged"
+const PrevPrefix string = "_prev"
 
 var CONFIG string
 var HostsPingStat = hostsPingStat

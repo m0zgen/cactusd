@@ -52,6 +52,9 @@ func PublishFiles(mergeddir string, out string) {
 		SortFile(f)
 
 		fmt.Println("Copy files from:" + f + " to: " + out + "/" + file.Name())
+		if IsFileExists(out + "/" + file.Name()) {
+			DeleteFile(out + "/" + file.Name())
+		}
 		err = copyFile(f, out+"/"+file.Name(), 20)
 		if err != nil {
 			fmt.Printf("File copying failed: %q\n", err)
@@ -115,6 +118,47 @@ func copyFile(src, dst string, BUFFERSIZE int64) error {
 		}
 	}
 	return err
+}
+
+// MoveFile Thx: https://stackoverflow.com/questions/50740902/move-a-file-to-a-different-drive-with-go
+func MoveFile(src, dst string) error {
+	in, err := os.Open(src)
+	if err != nil {
+		return fmt.Errorf("couldn't open source file: %s", err)
+	}
+
+	out, err := os.Create(dst)
+	if err != nil {
+		in.Close()
+		return fmt.Errorf("couldn't open dest file: %s", err)
+	}
+	defer out.Close()
+
+	_, err = io.Copy(out, in)
+	in.Close()
+	if err != nil {
+		return fmt.Errorf("writing to output file failed: %s", err)
+	}
+
+	err = out.Sync()
+	if err != nil {
+		return fmt.Errorf("sync error: %s", err)
+	}
+
+	si, err := os.Stat(src)
+	if err != nil {
+		return fmt.Errorf("stat error: %s", err)
+	}
+	err = os.Chmod(dst, si.Mode())
+	if err != nil {
+		return fmt.Errorf("chmod error: %s", err)
+	}
+
+	err = os.Remove(src)
+	if err != nil {
+		return fmt.Errorf("failed removing original file: %s", err)
+	}
+	return nil
 }
 
 // SortFile - Sort and remove duplicates from files
