@@ -40,7 +40,8 @@ type Server struct {
 	PublicDir      string
 }
 
-// Thx: https://gist.github.com/m0zgen/af44035db3102d08effc2d38e56c01f3
+// Clean stage on prepare step
+// Ref: https://gist.github.com/m0zgen/af44035db3102d08effc2d38e56c01f3
 func prepareFiles(path string, fi os.FileInfo, err error) error {
 
 	if err != nil {
@@ -69,7 +70,7 @@ func prepareFiles(path string, fi os.FileInfo, err error) error {
 	//r := regexp.MustCompile(`((?m)(#|\s#).*)`)
 	r2 := regexp.MustCompile(
 		//`(?m)(^[$&+,:;=?@#|'<>.\-^*()%!].+$)|(^.*::.*)|(#|\s#.*)|(^.*\/\/.*)|(^.*,.*$)|(^.*\.-.*$)|(^.*[\$\^].*$)`)
-		`(?m)(^[$&+,:;=?@#|'<>.\-^*()%!].+$)|(^.*::.*)|(#|\s#.*)|(^.*\/\/.*)|(^.*\.-.*$)`)
+		`(?m)(^[$&+,:;=?@#|'<>.\-^*()%!].+$)|(^.*::.*)|(#|\s#.*)|(^.*\/\/.*)|(^.*\.-.*$)|(^[а-я].*[--].*$)|(^[a-z].*[\^\,].*$)`)
 
 	// Select empty lines
 	//r2 := regexp.MustCompile(`(?m)^\s*$[\r\n]*|[\r\n]+\s+\z`)
