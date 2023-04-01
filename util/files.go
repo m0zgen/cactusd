@@ -6,93 +6,13 @@ import (
 	fileMerger "github.com/Ja7ad/goMerge"
 	"io"
 	"log"
-	"net/http"
 	"os"
-	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
 )
 
 // Downloads
-
-// Download - URL iterator
-func Download(url []string, dest string) {
-	//fmt.Println(url[1])
-	for i, u := range url {
-		fmt.Println(i, u)
-		err := downloadFile(u, dest)
-		HandleErr(err)
-	}
-}
-
-// URL file downloader
-func downloadFile(url string, dest string) error {
-	var postfix = "_prev"
-	var filename = GetFilenameFromUrl(url)
-	var filepath = filepath.Join(dest, filename)
-	if !strings.Contains(filename, ".txt") {
-		filepath = filepath + ".txt"
-	}
-
-	// Check exists file for processing in future
-	//if exists := getFileExists(filepath); exists == true {
-	//	fmt.Printf("File exists %s\n", filename)
-	//}
-
-	exist := IsFileExists(filepath)
-	if exist {
-		e := os.Rename(filepath, filepath+postfix)
-		if e != nil {
-			log.Fatal(e)
-		}
-	}
-
-	// Create the file
-	out, err := os.Create(filepath)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	// Get the data
-	// TODO: detect 404 pages or 200 response
-	fmt.Printf("Downloading file %s\n", filepath)
-	resp, err := http.Get(url)
-
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	// Write the body to file
-	_, err = io.Copy(out, resp.Body)
-	if err != nil {
-		return err
-	}
-
-	mergedFileName := MergedDir + "/" + GetFilenameFromUrl(dest) + ".txt"
-	if exist {
-		matched, _ := IsFileMatched(filepath, filepath+postfix)
-		if matched {
-			fmt.Println("Previous and current files - matched. No needed action.")
-		} else {
-			fmt.Printf("Merging files: %s\n", filename)
-
-			if IsFileExists(mergedFileName) {
-				DeleteFile(mergedFileName)
-			}
-			MergeFiles(dest, ".txt", mergedFileName)
-		}
-	} else {
-		if IsFileExists(mergedFileName) {
-			DeleteFile(mergedFileName)
-		}
-		MergeFiles(dest, ".txt", mergedFileName)
-	}
-
-	return nil
-}
 
 // MergeFiles - Merge downloaded files to one from folder to target
 func MergeFiles(path string, ext string, dest string) {
