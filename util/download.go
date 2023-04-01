@@ -51,37 +51,12 @@ func MoveFile(src, dst string) error {
 }
 
 // URL file downloader
-func downloadFile(url string, dest string) error {
-	var postfix = "_prev"
+func downloadFile(url string, saveFile string, dest string) error {
+
 	var filename = GetFilenameFromUrl(url)
-	var filepath = filepath.Join(dest, filename)
-	if !strings.Contains(filename, ".txt") {
-		filepath = filepath + ".txt"
-	}
 
-	// Check exists file for processing in future
-	//if exists := getFileExists(filepath); exists == true {
-	//	fmt.Printf("File exists %s\n", filename)
-	//}
-
-	exist := IsFileExists(filepath)
-	if exist {
-		err := MoveFile(filepath, filepath+postfix)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			log.Fatal(err)
-			//os.Exit(1)
-		}
-		//e := os.Rename(filepath, filepath+postfix)
-		//if e != nil {
-		//	log.Fatal(e)
-		//}
-	}
-
-	os.Remove(filepath)
-	
 	// Create the file
-	out, err := os.Create(filepath)
+	out, err := os.Create(saveFile)
 	if err != nil {
 		return err
 	}
@@ -89,7 +64,7 @@ func downloadFile(url string, dest string) error {
 
 	// Get the data
 	// TODO: detect 404 pages or 200 response
-	fmt.Printf("Downloading file %s\n", filepath)
+	fmt.Printf("Downloading file %s\n", saveFile)
 	resp, err := http.Get(url)
 
 	if err != nil {
@@ -104,8 +79,10 @@ func downloadFile(url string, dest string) error {
 	}
 
 	mergedFileName := MergedDir + "/" + GetFilenameFromUrl(dest) + ".txt"
+	exist := IsFileExists(saveFile)
+
 	if exist {
-		matched, _ := IsFileMatched(filepath, filepath+postfix)
+		matched, _ := IsFileMatched(saveFile, saveFile+"_prev")
 		if matched {
 			fmt.Println("Previous and current files - matched. No needed action.")
 		} else {
@@ -129,9 +106,33 @@ func downloadFile(url string, dest string) error {
 // Download - URL iterator
 func Download(url []string, dest string) {
 	//fmt.Println(url[1])
+	var postfix = "_prev"
+
 	for i, u := range url {
 		fmt.Println(i, u)
-		err := downloadFile(u, dest)
+
+		var dwnFileName = GetFilenameFromUrl(u)
+		var saveFile = filepath.Join(dest, dwnFileName)
+
+		if !strings.Contains(saveFile, ".txt") {
+			saveFile = saveFile + ".txt"
+		}
+
+		exist := IsFileExists(saveFile)
+		if exist {
+			err := MoveFile(saveFile, saveFile+postfix)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
+				log.Fatal(err)
+				//os.Exit(1)
+			}
+			//e := os.Rename(filepath, filepath+postfix)
+			//if e != nil {
+			//	log.Fatal(e)
+			//}
+		}
+
+		err := downloadFile(u, saveFile, dest)
 		HandleErr(err)
 	}
 }
