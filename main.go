@@ -183,6 +183,7 @@ func main() {
 	//Add usage ./cactusd -config <config ath or name>
 	flag.StringVar(&conf.CONFIG, "config", "config.yml", "Define config file")
 	showVersion := flag.Bool("version", false, "Show Cactusd version")
+	onlyGenerate := flag.Bool("generate", false, "Run only as file generator and exit")
 
 	flag.Parse()
 	if util.IsFlagPassed("config") {
@@ -192,6 +193,12 @@ func main() {
 	if *showVersion {
 		fmt.Println("Cactusd Version: ", conf.AppVersion)
 		return
+	}
+
+	if *onlyGenerate {
+		fmt.Println("Generate files...")
+		// run generator
+		os.Exit(0)
 	}
 
 	config, _ := conf.LoadConfig(conf.CONFIG, dirStatus)
