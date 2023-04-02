@@ -41,8 +41,6 @@ jobs:
           git checkout --orphan data
           git rm -rf .
           cp -rf /tmp/*.txt .
-          cp -rf /tmp/*.svg .
-          cp -rf /tmp/*.cdb .
 
       - name: Add files
         if: ${{ success() }}
