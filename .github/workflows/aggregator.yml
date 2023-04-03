@@ -4,9 +4,7 @@ on:
     branches:
       - dev
   schedule:
-    # At the end of every day
-    # - cron: "0 0 * * *"
-    # Con every 12 hours
+    # every 12 hours
     - cron: "0 */12 * * *"
 
 jobs:
