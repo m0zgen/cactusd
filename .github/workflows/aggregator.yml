@@ -2,7 +2,7 @@ name: Cactusd-Agro
 on:
   push:
     branches:
-      - tests
+      - dev
   schedule:
     # At the end of every day
     # - cron: "0 0 * * *"
