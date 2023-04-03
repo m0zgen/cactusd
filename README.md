@@ -23,6 +23,22 @@ and BazarLoader (aka BazarBackdoor), spammers / malicious IP addresses from Inte
 
 These lists updating every 12 hours.
 
+If you are using `open-bld` or `blocky` DNS blocking servers, you can use these lists in `config.yml`, example:
+
+```shell
+...
+blocking:
+  blackLists:
+    bld:
+      - https://raw.githubusercontent.com/m0zgen/cactusd/data/bl.txt
+      - https://raw.githubusercontent.com/m0zgen/cactusd/data/bl_plain.txt
+  whiteLists:
+    bld:
+      - https://raw.githubusercontent.com/m0zgen/cactusd/data/wl.txt
+      - https://raw.githubusercontent.com/m0zgen/cactusd/data/wl_plain.txt
+...
+```
+
 ## Self-Hosting Configuration
 
 ### Server Config
