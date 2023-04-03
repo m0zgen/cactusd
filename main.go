@@ -144,10 +144,16 @@ func initial(config conf.Config, dirStatus bool) {
 
 }
 
-func runTicker(config conf.Config, dirStatus bool, group *sync.WaitGroup) {
+func runTicker(config conf.Config, dirStatus bool, group *sync.WaitGroup, onlyGenerate bool) {
 	defer group.Done()
 
 	initial(config, dirStatus)
+
+	if onlyGenerate {
+		fmt.Println("Generated files stored in public/files catalog. Exit. Bye.")
+		os.Exit(0)
+	}
+
 	util.CallPinger()
 
 	fmt.Println("Interval done at: " + util.GetTime())
@@ -198,7 +204,7 @@ func main() {
 	if *onlyGenerate {
 		fmt.Println("Generate files...")
 		// run generator
-		os.Exit(0)
+		//os.Exit(0)
 	}
 
 	config, _ := conf.LoadConfig(conf.CONFIG, dirStatus)
@@ -224,8 +230,11 @@ func main() {
 	//	wg.Done()
 	//}()
 
-	go util.RunHttpServer(config.Server.Port)
-	go runTicker(config, dirStatus, wg)
+	if !*onlyGenerate {
+		go util.RunHttpServer(config.Server.Port)
+	}
+
+	go runTicker(config, dirStatus, wg, *onlyGenerate)
 
 	sigchnl := make(chan os.Signal, 1)
 	signal.Notify(sigchnl)
