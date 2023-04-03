@@ -46,7 +46,7 @@ jobs:
         run: |
           git checkout --orphan data
           git rm -rf .
-          rm -rf ./*
+          sudo rm -rf ./*
           cp -rf /tmp/*.txt .
 
       - name: Add files
