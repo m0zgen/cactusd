@@ -46,7 +46,7 @@ jobs:
         run: |
           git checkout --orphan data
           git rm -rf .
-          sudo rm -rf ./*
+          sudo rm -rf download merged public upload cactusd
           cp -rf /tmp/*.txt .
 
       - name: Add files
