@@ -11,7 +11,21 @@ Download/Upload, merge, divide by category and publish a domain name block lists
 
 * Move all functionality from [BLD-Server](https://github.com/m0zgen/bld-server)
 
-## Server Config
+Merged files already to download (from [config.yml](https://github.com/m0zgen/cactusd/blob/dev/config.yml)):
+* [bl.txt](https://raw.githubusercontent.com/m0zgen/cactusd/data/bl.txt) - Common merged block lists
+* [bl_plain.txt](https://raw.githubusercontent.com/m0zgen/cactusd/data/bl_plain.txt) - Merged lists from 
+[BLD Agregator](https://github.com/m0zgen/bld-agregator) and [dns-hole](https://github.com/m0zgen/dns-hole) regex files
+* [wl.txt](https://raw.githubusercontent.com/m0zgen/cactusd/data/wl.txt) - Common whitelisted domains from [dns-hole](https://github.com/m0zgen/dns-hole)
+* [wl_plain.txt](https://raw.githubusercontent.com/m0zgen/cactusd/data/wl_plain.txt) - Regex lists from [dns-hole](https://github.com/m0zgen/dns-hole)
+* [ip_plain.txt](https://github.com/m0zgen/cactusd/raw/data/ip_plain.txt) - IP list fo blocking (
+C&C servers associated with Dridex, Emotet (aka Heodo), TrickBot, QakBot (aka QuakBot / Qbot) 
+and BazarLoader (aka BazarBackdoor), spammers / malicious IP addresses from Internet).
+
+These lists updating every 12 hours.
+
+## Self-Hosting Configuration
+
+### Server Config
 * `port` - Web severer port listening 
 * `update_interval` - Heart beat in minutes (like as 30m)
 * `download_dir` - lists download catalog
