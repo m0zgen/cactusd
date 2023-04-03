@@ -17,9 +17,8 @@ Merged files already to download (from [config.yml](https://github.com/m0zgen/ca
 [BLD Agregator](https://github.com/m0zgen/bld-agregator) and [dns-hole](https://github.com/m0zgen/dns-hole) regex files
 * [wl.txt](https://raw.githubusercontent.com/m0zgen/cactusd/data/wl.txt) - Common whitelisted domains from [dns-hole](https://github.com/m0zgen/dns-hole)
 * [wl_plain.txt](https://raw.githubusercontent.com/m0zgen/cactusd/data/wl_plain.txt) - Regex lists from [dns-hole](https://github.com/m0zgen/dns-hole)
-* [ip_plain.txt](https://github.com/m0zgen/cactusd/raw/data/ip_plain.txt) - IP list fo blocking (
-C&C servers associated with Dridex, Emotet (aka Heodo), TrickBot, QakBot (aka QuakBot / Qbot) 
-and BazarLoader (aka BazarBackdoor), spammers / malicious IP addresses from Internet).
+* [ip_plain.txt](https://github.com/m0zgen/cactusd/raw/data/ip_plain.txt) - IP Block List (
+C&C servers associated with Dridex, Emotet, TrickBot, QakBot, BazarLoader, and spammers/malicious IP addresses from Internet).
 
 These lists updating every 12 hours.
 
