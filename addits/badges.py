@@ -40,7 +40,7 @@ def create_list_badge(list_name, list_description, file_badge, color_badge):
 # Generate badges
 create_date_badge()
 create_list_badge("bl.txt", "BL count", "badge_total_bl.svg", "red")
-create_list_badge("bl_plain.txt", "BL with regex count", "badge_total_bl_plain.svg", "red")
+create_list_badge("bl_plain.txt", "BL Plain count", "badge_total_bl_plain.svg", "red")
 create_list_badge("wl.txt", "WL count", "badge_total_wl.svg", "green")
-create_list_badge("wl_plain.txt", "WL with regex count", "badge_total_wl_plain.svg", "green")
+create_list_badge("wl_plain.txt", "WL Plain count", "badge_total_wl_plain.svg", "green")
 create_list_badge("ip_plain.txt", "IP count", "badge_total_ip.svg", "red")
