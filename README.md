@@ -48,7 +48,7 @@ configuration, example config for malicious IP relaxator:
 [DEFAULT]
 IP_TIMEOUT = 604800
 IP_THRESHOLD = -1
-EXPORT_COMMAND = curl -s https://github.com/m0zgen/cactusd/raw/data/ip_plain.txt
+EXPORT_COMMAND = curl -s https://raw.githubusercontent.com/m0zgen/cactusd/data/ip_plain.txt
 EXPORT_LOG = relax-ip.log
 ENABLED = Yes
 GROUP_NAME = relax-ip
