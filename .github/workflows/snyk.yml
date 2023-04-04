@@ -1,4 +1,4 @@
-name: "Snyk for Golang "
+name: "Snyk for Golang"
 
 on:
   push:
