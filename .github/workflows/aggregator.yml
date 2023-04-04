@@ -1,8 +1,8 @@
 name: Cactusd-Agro
 on:
-#  push:
-#    branches:
-#      - dev
+  push:
+    branches:
+      - dev
   schedule:
     # every 12 hours
     - cron: "0 */12 * * *"
@@ -16,12 +16,21 @@ jobs:
           # checkout all branches
           fetch-depth: 0
 
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+
+      - name: Install Python dependencies
+        run: |
+          sudo python3 -m pip install pybadges
+
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
           go-version: 1.19
 
-      - name: Install dependencies
+      - name: Install Go dependencies
         run: |
           go version
           go install
@@ -32,6 +41,8 @@ jobs:
       - name: Generate lists
         run: |
           sudo ./cactusd -generate
+          sudo python3 addits/badges.py
+          sudo cp -rf public/files/*.svg /tmp
           sudo cp -rf public/files/*.txt /tmp
 
       - name: Remove remote data branch
@@ -48,6 +59,7 @@ jobs:
           git rm -rf .
           sudo rm -rf download merged public upload cactusd
           cp -rf /tmp/*.txt .
+          cp -rf /tmp/*.svg .
 
       - name: Add files
         if: ${{ success() }}
