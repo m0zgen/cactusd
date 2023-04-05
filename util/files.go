@@ -120,7 +120,8 @@ func copyFile(src, dst string, BUFFERSIZE int64) error {
 	return err
 }
 
-// MoveFile Thx: https://stackoverflow.com/questions/50740902/move-a-file-to-a-different-drive-with-go
+// MoveFile
+// Ref: https://stackoverflow.com/questions/50740902/move-a-file-to-a-different-drive-with-go
 func MoveFile(src, dst string) error {
 	in, err := os.Open(src)
 	if err != nil {
