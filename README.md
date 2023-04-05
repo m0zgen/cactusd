@@ -14,15 +14,31 @@ Download/Upload, merge, divide by category and publish a domain name block lists
 
 ![today](https://raw.githubusercontent.com/m0zgen/cactusd/data/badge_date.svg)
 
-* ![bl total](https://raw.githubusercontent.com/m0zgen/cactusd/data/badge_total_bl.svg) [bl.txt](https://raw.githubusercontent.com/m0zgen/cactusd/data/bl.txt) - Common merged block lists
-* ![bl plain total](https://raw.githubusercontent.com/m0zgen/cactusd/data/badge_total_bl_plain.svg) [bl_plain.txt](https://raw.githubusercontent.com/m0zgen/cactusd/data/bl_plain.txt) - Merged lists from 
+* [![bl total](https://raw.githubusercontent.com/m0zgen/cactusd/data/badge_total_bl.svg)](https://raw.githubusercontent.com/m0zgen/cactusd/data/bl.txt) - Common merged block lists
+* [![bl plain total](https://raw.githubusercontent.com/m0zgen/cactusd/data/badge_total_bl_plain.svg)](https://raw.githubusercontent.com/m0zgen/cactusd/data/bl_plain.txt) - Merged lists from 
 [BLD Agregator](https://github.com/m0zgen/bld-agregator) and [dns-hole](https://github.com/m0zgen/dns-hole) regex files
-* ![wo total](https://raw.githubusercontent.com/m0zgen/cactusd/data/badge_total_wl.svg) [wl.txt](https://raw.githubusercontent.com/m0zgen/cactusd/data/wl.txt) - Common whitelisted domains from [dns-hole](https://github.com/m0zgen/dns-hole)
-* ![wl plain total](https://raw.githubusercontent.com/m0zgen/cactusd/data/badge_total_wl_plain.svg) [wl_plain.txt](https://raw.githubusercontent.com/m0zgen/cactusd/data/wl_plain.txt) - Regex lists from [dns-hole](https://github.com/m0zgen/dns-hole)
-* ![IP total](https://raw.githubusercontent.com/m0zgen/cactusd/data/badge_total_ip.svg) [ip_plain.txt](https://github.com/m0zgen/cactusd/raw/data/ip_plain.txt) - IP Block List (
-C&C servers associated with Dridex, Emotet, TrickBot, QakBot, BazarLoader, and spammers/malicious IP addresses from Internet).
+* [![wo total](https://raw.githubusercontent.com/m0zgen/cactusd/data/badge_total_wl.svg)](https://raw.githubusercontent.com/m0zgen/cactusd/data/wl.txt) - Common whitelisted domains from [dns-hole](https://github.com/m0zgen/dns-hole)
+* [![wl plain total](https://raw.githubusercontent.com/m0zgen/cactusd/data/badge_total_wl_plain.svg)](https://raw.githubusercontent.com/m0zgen/cactusd/data/wl_plain.txt) - Regex lists from [dns-hole](https://github.com/m0zgen/dns-hole)
+* [![IP total](https://raw.githubusercontent.com/m0zgen/cactusd/data/badge_total_ip.svg)](https://github.com/m0zgen/cactusd/raw/data/ip_plain.txt) - IP Block List (
+C&C servers associated with Dridex, Emotet, TrickBot, QakBot, BazarLoader, Bruteforce bots, Spammers/Malicious IP addresses from Internet).
 
-These lists updating every 12 hours.
+These lists updating every 12 hours. 
+
+Credits: [FadeMind](https://github.com/FadeMind/hosts.extras), 
+[StevenBlack](https://github.com/StevenBlack/hosts), 
+[notracking](https://github.com/notracking/hosts-blocklists),
+[davidonzo](https://github.com/davidonzo/Threat-Intel), 
+[mitchellkrogza](https://github.com/mitchellkrogza/Badd-Boyz-Hosts), 
+[PolishFiltersTeam](https://raw.githubusercontent.com/PolishFiltersTeam/KADhosts/master/KADhosts.txt), 
+[dns-hole](https://github.com/m0zgen/dns-hole), 
+[bld-agregator](https://github.com/m0zgen/bld-agregator),
+[digitalside](https://osint.digitalside.it/Threat-Intel/lists/latestips.txt),
+[firehol level1](https://iplists.firehol.org/files/firehol_level1.netset), 
+[firehol level2](https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset), 
+[feodotracker](https://feodotracker.abuse.ch/downloads/ipblocklist_recommended.txt), 
+[stamparm](https://raw.githubusercontent.com/stamparm/ipsum/master/levels/2.txt)
+
+## Client Configs
 
 If you are using `open-bld` or `blocky` DNS blocking servers, you can use these lists in `config.yml`, example:
 
