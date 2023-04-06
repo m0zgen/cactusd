@@ -111,6 +111,27 @@ Every category will merge and publish in finally in `publish/files` catalog as s
 * `public/files/ip_plain.txt` - blocking IP addresses (like example for [ip2drop](https://github.com/m0zgen/ip2drop) scripts or just for `ipset` blocking) 
 * `public/files/dropped_ip.txt` - from remote [ip2drop](https://github.com/m0zgen/ip2drop) servers, oe any another script or routines
 
+## Ping Config
+
+You can define target IP and port in `ping` section in `config.yml`:
+
+```shell
+...
+ping:
+  - host:
+      name: 1.1.1.1
+      port: 443
+  - host:
+      name: 9.9.9.9
+      port: 53
+  - host:
+...
+```
+
+And next, you can see status in self-hosted embed web server:
+
+![cactusd web ui](docs/images/embed-web-ui.jpg)
+
 ## Run Cactusd
 
 From terminal:
@@ -131,6 +152,4 @@ ExecStart=/path/to/cactusd --config config-prod.yml
 ## Additional Info
 
 * all functionality moved from deprecated [BLD-Server](https://github.com/m0zgen/bld-server)
-* as "client" for `cactusd` server you can use [ip2drop](https://github.com/m0zgen/ip2drop) 
-* [DNS-Hole](https://github.com/m0zgen/dns-hole) list collections 
-* one more aggregator [BLD-Agregator](https://github.com/m0zgen/bld-agregator)
+* as "client" for `cactusd` server you can use [ip2drop](https://github.com/m0zgen/ip2drop)
