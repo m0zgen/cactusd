@@ -5,7 +5,17 @@ import (
 	"testing"
 )
 
-// Test downloadFile function
+// Test util.CreateDir function
+func TestCreateDir(t *testing.T) {
+	dirName := "/tmp/test"
+	dirStatus := util.IsDirEmpty(dirName)
+	err := util.CreateDir(dirName, dirStatus)
+	if err != nil {
+		t.Errorf("Error: %s", err)
+	}
+}
+
+// Test util.downloadFile function
 func TestDownloadFile(t *testing.T) {
 	url := "https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts"
 	saveFile := "hosts.txt"
