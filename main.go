@@ -230,6 +230,8 @@ func main() {
 	//	wg.Done()
 	//}()
 
+	// TODO: Add queue tasks
+
 	if !*onlyGenerate {
 		go util.RunHttpServer(config.Server.Port)
 	}

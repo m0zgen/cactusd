@@ -10,7 +10,7 @@ import (
 )
 
 // URL file downloader
-func downloadFile(url string, saveFile string, dest string) error {
+func DownloadFile(url string, saveFile string, dest string) error {
 
 	//var filename = GetFilenameFromUrl(url)
 	//var prevFile = saveFile + PrevPrefix
@@ -101,7 +101,7 @@ func Download(url []string, dest string) {
 			//}
 		}
 
-		err := downloadFile(u, saveFile, dest)
+		err := DownloadFile(u, saveFile, dest)
 		HandleErr(err)
 	}
 }
