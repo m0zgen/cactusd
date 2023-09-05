@@ -42,6 +42,7 @@ lists:
     # - TODO: Download files with same names?
     - https://raw.githubusercontent.com/m0zgen/dns-hole/master/dns-blacklist.txt
     - https://raw.githubusercontent.com/FadeMind/hosts.extras/master/add.Spam/hosts
+    - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/pro.txt
   bl_plain:
     - https://raw.githubusercontent.com/m0zgen/bld-agregator/data/blocklist.txt
     - https://raw.githubusercontent.com/m0zgen/dns-hole/master/regex/common-bl.txt
