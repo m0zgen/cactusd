@@ -36,7 +36,7 @@ Credits: [FadeMind](https://github.com/FadeMind/hosts.extras),
 [firehol level1](https://iplists.firehol.org/files/firehol_level1.netset), 
 [firehol level2](https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset), 
 [feodotracker](https://feodotracker.abuse.ch/downloads/ipblocklist_recommended.txt), 
-[stamparm](https://raw.githubusercontent.com/stamparm/ipsum/master/levels/2.txt)
+[stamparm](https://raw.githubusercontent.com/stamparm/ipsum/master/levels/2.txt), [dns-blocklists](https://github.com/hagezi/dns-blocklists)
 
 ## Client Configs
 
