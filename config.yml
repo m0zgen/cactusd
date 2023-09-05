@@ -41,21 +41,22 @@ lists:
   bl:
     # - TODO: Download files with same names?
     - https://raw.githubusercontent.com/m0zgen/dns-hole/master/dns-blacklist.txt
-    - https://raw.githubusercontent.com/StevenBlack/hosts/master/data/StevenBlack/hosts
+    - https://raw.githubusercontent.com/FadeMind/hosts.extras/master/add.Spam/hosts
+    - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/pro.txt
   bl_plain:
-    - https://raw.githubusercontent.com/m0zgen/dns-hole/master/regex/common-bl.txt
     - https://raw.githubusercontent.com/m0zgen/bld-agregator/data/blocklist.txt
+    - https://raw.githubusercontent.com/m0zgen/dns-hole/master/regex/common-bl.txt
   wl:
     - https://raw.githubusercontent.com/m0zgen/dns-hole/master/whitelist.txt
-    - https://raw.githubusercontent.com/m0zgen/dns-hole/master/bld-testing/wl-testing
     - https://raw.githubusercontent.com/m0zgen/dns-hole/master/vendors-wl/microsoft.txt
     - https://raw.githubusercontent.com/m0zgen/dns-hole/master/vendors-wl/google.txt
   wl_plain:
     - https://raw.githubusercontent.com/m0zgen/dns-hole/master/regex/common-wl.txt
-    - https://raw.githubusercontent.com/m0zgen/bld-agregator/data/allowlist.txt
+    - https://raw.githubusercontent.com/m0zgen/dns-hole/master/bld-testing/wl-testing
   ip_plain:
     - https://osint.digitalside.it/Threat-Intel/lists/latestips.txt
     - https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset
     - https://feodotracker.abuse.ch/downloads/ipblocklist_recommended.txt
     - https://iplists.firehol.org/files/firehol_level1.netset
     - https://raw.githubusercontent.com/stamparm/ipsum/master/levels/2.txt
+

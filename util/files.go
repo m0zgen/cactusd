@@ -120,7 +120,8 @@ func copyFile(src, dst string, BUFFERSIZE int64) error {
 	return err
 }
 
-// MoveFile Thx: https://stackoverflow.com/questions/50740902/move-a-file-to-a-different-drive-with-go
+// MoveFile
+// Ref: https://stackoverflow.com/questions/50740902/move-a-file-to-a-different-drive-with-go
 func MoveFile(src, dst string) error {
 	in, err := os.Open(src)
 	if err != nil {
@@ -161,7 +162,8 @@ func MoveFile(src, dst string) error {
 	return nil
 }
 
-// SortFile - Sort and remove duplicates from files
+// SortFile Clean stage after published. Last step.
+// Clean, sort, remove duplicates from published files
 func SortFile(file string) {
 
 	lines, err := readLines(file)
@@ -180,6 +182,7 @@ func SortFile(file string) {
 	}
 }
 
+// Regex cleaner
 func removeMatches(lines *[]string) {
 	//r := regexp.MustCompile(`^\s*$[\r\n]*|[\r\n]+\s+\z`)
 	r := regexp.MustCompile(`((#|\s#).*)|(^\s*$[\r\n]*|[\r\n]+\s+\z)|(^\d{0,9}$)`)
