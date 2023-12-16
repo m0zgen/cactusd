@@ -47,7 +47,7 @@ lists:
     - https://raw.githubusercontent.com/m0zgen/dns-hole/master/regex/common-bl.txt
     - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/tif.txt
     - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/pro.txt
-    - https://big.oisd.nl/regex
+    # - https://big.oisd.nl/regex
   wl:
     - https://raw.githubusercontent.com/m0zgen/dns-hole/master/whitelist.txt
     - https://raw.githubusercontent.com/m0zgen/dns-hole/master/vendors-wl/microsoft.txt
