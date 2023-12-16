@@ -46,6 +46,7 @@ lists:
   bl_plain:
     - https://raw.githubusercontent.com/m0zgen/bld-agregator/data/blocklist.txt
     - https://raw.githubusercontent.com/m0zgen/dns-hole/master/regex/common-bl.txt
+    - https://big.oisd.nl/regex
   wl:
     - https://raw.githubusercontent.com/m0zgen/dns-hole/master/whitelist.txt
     - https://raw.githubusercontent.com/m0zgen/dns-hole/master/vendors-wl/microsoft.txt
