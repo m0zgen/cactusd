@@ -47,6 +47,8 @@ lists:
     - https://raw.githubusercontent.com/m0zgen/dns-hole/master/regex/common-bl.txt
     - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/tif.txt
     - https://raw.githubusercontent.com/hagezi/dns-blocklists/main/domains/pro.txt
+    - https://raw.githubusercontent.com/AssoEchap/stalkerware-indicators/refs/heads/master/generated/quad9_blocklist.txt
+    - https://raw.githubusercontent.com/NethServer/dns-community-blacklist/refs/heads/master/abuse_ch.dns
     # - https://big.oisd.nl/regex
   wl:
     - https://raw.githubusercontent.com/m0zgen/dns-hole/master/whitelist.txt
