@@ -144,14 +144,40 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 }
 
 // RunHttpServer - Start HTTP sever
-func RunHttpServer(port string) {
+func RunHttpServer(port string, disableHome bool) {
 
 	//fileHandler := http.StripPrefix("/", http.FileServer(http.Dir("public")))
 
 	fs := http.FileServer(http.Dir("./public"))
 	http.Handle("/public/", http.StripPrefix("/public/", fs))
 
-	http.HandleFunc("/", serveTemplate)
+	if !disableHome {
+		http.HandleFunc("/", serveTemplate)
+	} else {
+		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			//http.Redirect(w, r, "/home", http.StatusSeeOther)
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			fmt.Fprintln(w, `
+				<html>
+				<head>
+					<meta name="robots" content="noindex, nofollow">
+					<style>
+						body {
+							background-color: black;
+							color: green;
+							font-family: monospace;
+							text-align: center;
+							padding: 20px;
+						}
+					</style>
+				</head>
+				<body>
+					<code>Cactus 🌵 here</code>
+				</body>
+				</html>
+			`)
+		})
+	}
 
 	//http.Handle("/", fileHandler)
 	http.HandleFunc("/time", TimeHandler)

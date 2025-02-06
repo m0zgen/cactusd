@@ -14,6 +14,7 @@ server:
   ping_interval: 5m
   # Ping timeout (TODO)
   ping_timeout: 2s
+  disable_home_page: true
 
 # Target hosts for ping
 # IP or DN with port

@@ -233,7 +233,7 @@ func main() {
 	// TODO: Add queue tasks
 
 	if !*onlyGenerate {
-		go util.RunHttpServer(config.Server.Port)
+		go util.RunHttpServer(config.Server.Port, config.Server.DisableHomePage)
 	}
 
 	go runTicker(config, dirStatus, wg, *onlyGenerate)

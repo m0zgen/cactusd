@@ -27,11 +27,12 @@ var (
 // Config file structure type
 type Config struct {
 	Server struct {
-		Port           string `yaml:"port"`
-		UpdateInterval string `yaml:"update_interval"`
-		DownloadDir    string `yaml:"download_dir"`
-		UploadDir      string `yaml:"upload_dir"`
-		PublicDir      string `yaml:"public_dir"`
+		Port            string `yaml:"port"`
+		UpdateInterval  string `yaml:"update_interval"`
+		DownloadDir     string `yaml:"download_dir"`
+		UploadDir       string `yaml:"upload_dir"`
+		PublicDir       string `yaml:"public_dir"`
+		DisableHomePage bool   `yaml:"disable_home_page"`
 	} `yaml:"server"`
 	Lists struct {
 		Bl      []string `yaml:"bl"`
